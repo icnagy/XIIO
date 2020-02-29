@@ -24,6 +24,16 @@ void edit(int8_t vari) {
         TCCR1B |= (1 << WGM12);                             // turn on CTC mode
         TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10);  // Set CS12, CS11 and CS10 bits for 256 prescaler
         TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
+
+        TCCR2B = 0;                 // set entire TCCR2B register to 0
+        TCCR2A |= (1 << WGM21);     // turn on CTC mode
+                                    // set compare match register for 1000 Hz increments
+        OCR2A = 249;                // = 16000000 / (64 * 1000) - 1 (must be <256)
+        TCNT2  = 0;                 // initialize counter value to 0
+        TCCR2A = 0;                 // set entire TCCR2A register to 0
+        TCCR2B |= (1 << CS22) | (0 << CS21) | (0 << CS20); // Set CS22, CS21 and CS20 bits for 64 prescaler
+        TIMSK2 |= (1 << OCIE2A);    // enable timer compare interrupt
+
       }
 
       break;
@@ -109,7 +119,7 @@ void settings(int8_t vari) {
         glideTime = newGlideTime - 1;
         glideEnabled = GLIDE_ON;
         totalGlideTicks = _32note_ticks[bpm] * GlideTimeMultiplier[glideTime];
-        Serial.println(totalGlideTicks);
+        // Serial.println(totalGlideTicks);
       }
       // ledScale(glideTime);
       // return;

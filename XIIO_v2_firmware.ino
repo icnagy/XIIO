@@ -183,7 +183,6 @@ glideStatusEnum gliding = GLIDE_OFF;      // true when gliding from a note to an
 bool glideLegato = 0;  // true when in legato mode
 glideTimeEnum glideTime = GLIDE_TIME_FULL_NOTE;
 glideStatusEnum glideEnabled = GLIDE_OFF;
-uint32_t glideCounter = 0;
 int8_t newGlideTime = 0;
 
 #define GLIDE_TIME_MULTIPLIER_FOR_FULL_NOTE         (1 << GLIDE_TIME_FULL_NOTE)
@@ -350,7 +349,7 @@ void setup() {
 
   // recall last settings
   preset = EEPROM.read(1023);
-  // loadPreset();
+  loadPreset();
 
   encoderDirection = !EEPROM.read(1021);
 
@@ -376,14 +375,24 @@ void setup() {
   TIMSK1 |= (1 << OCIE1A);    // enable timer compare interrupt
 
   // TIMER 2 for interrupt frequency 1000 Hz:
-  TCCR2A = 0;                 // set entire TCCR2A register to 0
-  TCCR2B = 0;                 // same for TCCR2B
-  TCNT2  = 0;                 // initialize counter value to 0
-                              // set compare match register for 1000 Hz increments
-  OCR2A = 249;                // 1000 Hz (16000000/((124+1)*128))
+  // TCCR2A = 0;                 // set entire TCCR2A register to 0
+  // TCCR2B = 0;                 // same for TCCR2B
+  // TCNT2  = 0;                 // initialize counter value to 0
+  //                             // set compare match register for 1000 Hz increments
+  // OCR2A = 249;                // 1000 Hz (16000000/((124+1)*128))
+  // TCCR2A |= (1 << WGM21);     // turn on CTC mode
+  // TCCR2B |= (0 << CS22) | (1 << CS21) | (1 << CS20);  // Set CS22, CS21 and CS20 bits for 64 prescaler
+  // TIMSK2 |= (1 << OCIE2A);    // enable timer compare interrupt
+
+  TCCR2B = 0;                 // set entire TCCR2B register to 0
   TCCR2A |= (1 << WGM21);     // turn on CTC mode
-  TCCR2B |= (0 << CS22) | (1 << CS21) | (1 << CS20);  // Set CS22, CS21 and CS20 bits for 64 prescaler
+                              // set compare match register for 1000 Hz increments
+  OCR2A = 249;                // = 16000000 / (64 * 1000) - 1 (must be <256)
+  TCNT2  = 0;                 // initialize counter value to 0
+  TCCR2A = 0;                 // set entire TCCR2A register to 0
+  TCCR2B |= (1 << CS22) | (0 << CS21) | (0 << CS20); // Set CS22, CS21 and CS20 bits for 64 prescaler
   TIMSK2 |= (1 << OCIE2A);    // enable timer compare interrupt
+
   sei(); // allow interrupts
   Serial.println("Interrupt setup complete");
 }

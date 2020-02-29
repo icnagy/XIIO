@@ -22,7 +22,6 @@ ISR(TIMER2_COMPA_vect){                           //interrupt commands for TIMER
       glide_accumlator = glide_accumlator - glide_step_per_tick;
     }
     glideNote = glide_accumlator >> 10;
-    glideCounter++;
     // Serial.print("Glide step per tick "); Serial.println(glide_step_per_tick);
     // Serial.print("Glide accumlator    "); Serial.println(glide_accumlator);
     // Serial.print("Glide stop          "); Serial.println(glideStop);
@@ -34,10 +33,6 @@ ISR(TIMER2_COMPA_vect){                           //interrupt commands for TIMER
         (glideDirection == GLIDE_DIRECTION_UP && glideNote > glideStop) ||   // did we overshoot on our way up?
         glideNote > 708 ||                                // over highest note?
         glideNote < 288) {                                // under lowest note?
-
-      Serial.print("Glide done ");
-      Serial.println(glideCounter);
-      glideCounter = 0;
       glideNote = glideStop;
       // if yes, switch of glide
       gliding = GLIDE_OFF;

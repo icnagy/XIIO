@@ -1,5 +1,5 @@
 void doNoteFunction(uint16_t noteToDac) {
-  Serial.print("noteToDac: "); Serial.println(noteToDac);
+  // Serial.print("noteToDac: "); Serial.println(noteToDac);
   // write new note if...
   if (!glideEnabled ||                                                  // glide is off...
        (glideEnabled && !mode && glideLegato && activeNotePlates < 2) ||// or glideLegato is active, and only one key is pressed...
@@ -23,7 +23,6 @@ void doNoteFunction(uint16_t noteToDac) {
     if (glideNote == glideStop){
       return;
     }
-    glideCounter = 0;
     // Setup glide params for INT2
     // needs: 
     // glide_step_per_tick = (noteToDac - glideNote) / glide_time_ticks
