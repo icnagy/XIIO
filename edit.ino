@@ -15,7 +15,6 @@ void edit(int8_t vari) {
         // BPM adjust
         bpm = finibus(bpm + vari, 0, 180);      // limit to the bpmTimeTable array
         Serial.println(bpm + 60);
-        // cli();                                              // stop interrupts
         TIMSK1 = 0;
         TCCR1A = 0;                                         // set entire TCCR1A register to 0
         TCCR1B = 0;                                         // same for TCCR1B
@@ -25,7 +24,6 @@ void edit(int8_t vari) {
         TCCR1B |= (1 << WGM12);                             // turn on CTC mode
         TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10);  // Set CS12, CS11 and CS10 bits for 256 prescaler
         TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
-        // sei();                                              // allow interrupts
       }
 
       break;

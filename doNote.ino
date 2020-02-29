@@ -13,15 +13,14 @@ void doNoteFunction(uint16_t noteToDac) {
       (glideEnabled && !mode && glideLegato && activeNotePlates >= 2) || 
       (glideEnabled && mode && glideLegato && arpGlide)) {
 
-    Serial.println("Setup Glide");
-    Serial.print("Glide note          "); Serial.println(glideNote);
+    // Serial.println("Setup Glide");
+    // Serial.print("Glide note          "); Serial.println(glideNote);
 
     // get the note to which we are gliding to
     glideStop = noteToDac;
-    Serial.print("Glide stop          "); Serial.println(glideStop);
+    // Serial.print("Glide stop          "); Serial.println(glideStop);
     // if it's the same, return
     if (glideNote == glideStop){
-      // Serial.println("=========");
       return;
     }
     glideCounter = 0;
@@ -49,7 +48,7 @@ void doNoteFunction(uint16_t noteToDac) {
       glide_accumlator = (((uint32_t)glideNote) << 10) - glide_step_per_tick;
     }
 
-    Serial.print("totalGlideTicks     "); Serial.println(totalGlideTicks);
+    // Serial.print("totalGlideTicks     "); Serial.println(totalGlideTicks);
     // Serial.print("Glide step per tick "); Serial.println(glide_step_per_tick);
     // Serial.print("Glide accumlator    "); Serial.println(glide_accumlator);
     gliding = GLIDE_ON;
