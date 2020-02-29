@@ -19,8 +19,7 @@ void switchPlates() {
           if (i == 1 && mode && glideLegato) {
             arpGlide = switchPlateStatus[i];
             if (!arpGlide) { // switch off gliding
-              TIMSK1 = 0x0;
-              gliding = 0;
+              gliding = GLIDE_OFF;
               writeDAC(glideStop);
             }
           }

@@ -9,12 +9,16 @@ octaveAction               max value: 3  bits: 2
 switchPlateBehavior [0]    max value: 2  bits: 2
 switchPlateBehavior [1]    max value: 2  bits: 2
 
+glideTime                 max value: 7  bits: 6
 glideLegato                max value: 1  bits: 1
-glideIndex                 max value: 48 bits: 6
+glideEnabled               max value: 1  bits: 1
 
 arp                        max value: 1  bits: 1
 enableFreeze               max value: 2  bits: 2
 seqDirection               max value: 3  bits: 2
+
+seqScope                   max value: 16 bits: 4
+bpm                        max value: 180 bits: 8
 
 things, that has to be restored while a preset loads:
 
@@ -53,9 +57,9 @@ void savePreset(){
 
   dataToStore = 0;
 
-  dataToStore |= glideIndex;         // 00XX XXXX
+  dataToStore |= glideTime;         // 00XX XXXX
   dataToStore |= glideLegato << 6;   // 0X00 0000
-  // the 8th bit is not used         // X000 0000
+  dataToStore |= glideEnabled << 7;  // X000 0000
 
   EEPROM.update(presetPrefix + 10, dataToStore);
 
@@ -76,7 +80,8 @@ void savePreset(){
 
   EEPROM.update(presetPrefix + 12, dataToStore);
 
-  // bytes (prefix+) 13, 14 are reserved
+  EEPROM.update(presetPrefix + 13, (uint8_t)(bpm & 0xff));
+  // bytes (prefix+) 14 are reserved
 
   currentPreset = preset;
   EEPROM.update(1023, currentPreset);
@@ -116,16 +121,9 @@ void loadPreset(){
 
   data = EEPROM.read(presetPrefix + 10);
 
-  glideIndex = data & B00111111;           // 00XX XXXX
+  glideTime = data & B00111111;           // 00XX XXXX
   glideLegato = (data >> 6) & B00000001;   // 0X00 0000
-  // the 8th bit is not used               // X000 0000
-  if (glideIndex > 0){
-    OCR1A = glideTimeTable [glideIndex-1];
-  }
-  else {
-    TIMSK1 = 0x0;
-    gliding = 0;
-  }
+  glideEnabled = (data >> 7) & B00000001;  // X000 0000
 
   // load arp settings
 
@@ -140,13 +138,20 @@ void loadPreset(){
 
   seqScope = (data & B00001111) + 1;               // 0000 XXXX
 
+  bpm = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
   // bytes (prefix+) 12, 13, 14 are reserved
+
+  if (glideEnabled){
+    totalGlideTicks = _32note_ticks[bpm] * GlideTimeMultiplier[glideTime];
+  }
+  else {
+    gliding = GLIDE_OFF;
+  }
 
   octave = 0;
 
   currentPreset = preset;
   EEPROM.update(1023, currentPreset);
-  
 }
 
 void loadAnim() {

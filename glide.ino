@@ -1,45 +1,28 @@
-void glideDetermination(uint16_t noteToDac){
+// void glideDetermination(uint16_t noteToDac){
 
-  // get the note to which we are gliding
-  glideStop = noteToDac;
+//   // get the note to which we are gliding
+//   glideStop = noteToDac;
 
-  // if it's the same, return
-  if (glideNote == glideStop){
-    return;
-  }
+//   // if it's the same, return
+//   if (glideNote == glideStop){
+//     return;
+//   }
 
-  // get direction of sweep
-  // down
-  if (glideNote > glideStop){
-    glideDirection = 0;
-  }
-  // up
-  if (glideNote < glideStop){
-    glideDirection = 1;
-  }
+//   // get direction of sweep
+//   // down
+//   if (glideNote > glideStop){
+//     glideDirection = GLIDE_DIRECTION_DOWN;
+//   }
+//   // up
+//   if (glideNote < glideStop){
+//     glideDirection = GLIDE_DIRECTION_UP;
+//   }
 
-  gliding = 1;
-  TIFR1 = 0xFF; // reset timer 1
-  TIMSK1 = (1 << OCIE1A); // enable interrupts
+//   gliding = 1;
 
-  // calculate new gliding note
-  glideNote = glideNote - 1 + (glideDirection*2);
+//   // calculate new gliding note
+//   glideNote = glideNote - 1 + (glideDirection*2);
 
-  // refresh DAC  
-  writeDAC(glideNote);
-
-
-}
-
-void killint(){
-  if (gliding){
-    TIMSK1 = 0x0;
-  }
-}
-
-void doint(){
-  if (gliding){
-    TIMSK1 = (1 << OCIE1A);
-  }
-}
-
+//   // refresh DAC  
+//   writeDAC(glideNote);
+// }

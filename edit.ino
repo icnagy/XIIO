@@ -10,6 +10,23 @@ void edit(int8_t vari) {
         doTriggerFunction(1);
         return;
       }
+      else 
+      {
+        // BPM adjust
+        bpm = finibus(bpm + vari, 0, 180);      // limit to the bpmTimeTable array
+        Serial.println(bpm + 60);
+        // cli();                                              // stop interrupts
+        TIMSK1 = 0;
+        TCCR1A = 0;                                         // set entire TCCR1A register to 0
+        TCCR1B = 0;                                         // same for TCCR1B
+        TCNT1  = 0;                                         // initialize counter value to 0
+                                                            // set compare match register for bpm/60 Hz increments
+        OCR1A = bpmTimeTable[bpm];                          // = 16000000 / (256 * freq) - 1 (must be <65536)
+        TCCR1B |= (1 << WGM12);                             // turn on CTC mode
+        TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10);  // Set CS12, CS11 and CS10 bits for 256 prescaler
+        TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
+        // sei();                                              // allow interrupts
+      }
 
       break;
 
@@ -81,18 +98,23 @@ void settings(int8_t vari) {
 
     case 9:
       // glide time
-      // 0-48
+      // 0 Off 1-7
       // gliding is disabled, when index = 0
-      glideIndex = finibus ((glideIndex + vari), 0, 48);
-      if (glideIndex > 0) {
-        OCR1A = glideTimeTable [glideIndex - 1];
-      }
+      newGlideTime = finibus ((newGlideTime + vari), 0, 6);
+      B = binary(newGlideTime);
+
+      if (newGlideTime == 0) {
+        glideEnabled = GLIDE_OFF;
+        gliding = GLIDE_OFF;
+      } 
       else {
-        TIMSK1 = 0x0;
-        gliding = 0;
+        glideTime = newGlideTime - 1;
+        glideEnabled = GLIDE_ON;
+        totalGlideTicks = _32note_ticks[bpm] * GlideTimeMultiplier[glideTime];
+        Serial.println(totalGlideTicks);
       }
-      ledScale(glideIndex);
-      return;
+      // ledScale(glideTime);
+      // return;
       break;
 
     case 10:

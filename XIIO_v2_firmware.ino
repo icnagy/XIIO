@@ -9,12 +9,10 @@
           __/\\\/___\///\\\____________/\\\\\\\\\\\____________/\\\\\\\\\\\______________\///\\\\\/_____
            _\///_______\///____________\///////////____________\///////////_________________\/////_______
 
-  by Máté Szabó, 2016
+  V3 by Csaba Nagy, 2020
+  V2 by Máté Szabó, 2016
   www.doboz.audio
-
 */
-
-
 
 // FastLED library
 #include <FastLED.h>
@@ -60,8 +58,6 @@ uint8_t WB = B0000;
 // MPR121 library
 #include "Adafruit_MPR121.h"
 Adafruit_MPR121 cap = Adafruit_MPR121();
-
-
 
 // encoder
 bool encoderDirection = 0;
@@ -116,10 +112,9 @@ bool readClock = 1;
 bool lastClock = 1;
 bool newClock = 0;
 // Internal clock
-uint8_t bpm = 120;
-uint8_t interrup_c = 129;
-
-
+bool internalClockIsRunning = true;
+uint32_t lastClockFallingEdge = 0;
+uint8_t bpm = 60;
 
 uint8_t page = 0;
 #define keyboard_page 0
@@ -161,23 +156,85 @@ bool switchPlateLast [] = {0, 0};
 bool switchPlateStatus [] = {0, 0};
 uint32_t switchPlateTriggerTime [] = {0, 0};
 
-uint16_t glideStop = 0;  // the note to which we are gliding
-uint16_t glideNote = 0;  // the current note, while gliding
-bool glideDirection = 0;
-uint16_t glideLast = 0;  // the last time, when DAC was refreshed
-
-bool gliding = 0;      // true when gliding from a note to another is in progress
-bool glideLegato = 0;  // true when in legato mode
-uint8_t glideIndex = 0;
-
-const uint16_t glideTimeTable [] = {
-  15, 21, 26, 31, 36, 40, 45, 52, 61, 69, 78, 87, 104, 122, 139, 156,
-  174, 191, 208, 226, 243, 260, 313, 365, 417, 469, 521, 608, 694, 781, 868, 955,
-  1042, 1128, 1302, 1389, 1389, 1736, 1910, 2083, 2257, 2431, 2604, 2778, 2951, 3125, 3299, 3472
+enum glideStatusEnum {
+  GLIDE_OFF, // 0
+  GLIDE_ON   // 1
 };
 
+enum glideDirectionEnum {
+  GLIDE_DIRECTION_DOWN, // 0
+  GLIDE_DIRECTION_UP    // 1
+};
 
-uint16_t notes[] = {288, 288, 288, 288, 288, 288, 288, 288};
+enum glideTimeEnum {
+  GLIDE_TIME_THIRTYSECOND_NOTE,   // 0
+  GLIDE_TIME_SIXTEENTH_NOTE,      // 1
+  GLIDE_TIME_EIGHTH_NOTE,         // 2
+  GLIDE_TIME_QUATER_NOTE,         // 3
+  GLIDE_TIME_HALF_NOTE,           // 4
+  GLIDE_TIME_FULL_NOTE            // 5
+};
+
+uint16_t glideStop = 0;  // the note to which we are gliding
+uint16_t glideNote = 0;  // the current note, while gliding
+
+glideDirectionEnum glideDirection = GLIDE_DIRECTION_DOWN;
+glideStatusEnum gliding = GLIDE_OFF;      // true when gliding from a note to another is in progress
+bool glideLegato = 0;  // true when in legato mode
+glideTimeEnum glideTime = GLIDE_TIME_FULL_NOTE;
+glideStatusEnum glideEnabled = GLIDE_OFF;
+uint32_t glideCounter = 0;
+int8_t newGlideTime = 0;
+
+#define GLIDE_TIME_MULTIPLIER_FOR_FULL_NOTE         (1 << GLIDE_TIME_FULL_NOTE)
+#define GLIDE_TIME_MULTIPLIER_FOR_HALF_NOTE         (1 << GLIDE_TIME_HALF_NOTE)
+#define GLIDE_TIME_MULTIPLIER_FOR_QUATER_NOTE       (1 << GLIDE_TIME_QUATER_NOTE)
+#define GLIDE_TIME_MULTIPLIER_FOR_EIGHTH_NOTE       (1 << GLIDE_TIME_EIGHTH_NOTE)
+#define GLIDE_TIME_MULTIPLIER_FOR_SIXTEENTH_NOTE    (1 << GLIDE_TIME_SIXTEENTH_NOTE)
+#define GLIDE_TIME_MULTIPLIER_FOR_THIRTYSECOND_NOTE (1 << GLIDE_TIME_THIRTYSECOND_NOTE)
+
+const uint8_t GlideTimeMultiplier[] = {
+  GLIDE_TIME_MULTIPLIER_FOR_THIRTYSECOND_NOTE,  // 0
+  GLIDE_TIME_MULTIPLIER_FOR_SIXTEENTH_NOTE,     // 1
+  GLIDE_TIME_MULTIPLIER_FOR_EIGHTH_NOTE,        // 2
+  GLIDE_TIME_MULTIPLIER_FOR_QUATER_NOTE,        // 3
+  GLIDE_TIME_MULTIPLIER_FOR_HALF_NOTE,          // 4
+  GLIDE_TIME_MULTIPLIER_FOR_FULL_NOTE           // 5
+};
+
+uint16_t totalGlideTicks = 1000;
+uint32_t glide_step_per_tick = 0;
+uint32_t glide_accumlator = 0;
+
+// INT1 times between 60 and 240 BPM
+const uint16_t bpmTimeTable [] = {
+  62499, 61474, 60482, 59522, 58592, 57691, 56817, 55969, 55146, 54346, 53570, 52815, 52082, 51368, 
+  50674, 49999, 49341, 48700, 48075, 47467, 46874, 46295, 45730, 45179, 44641, 44116, 43603, 43102, 
+  42612, 42133, 41665, 41207, 40759, 40321, 39892, 39472, 39061, 38658, 38264, 37877, 37499, 37127, 
+  36763, 36406, 36056, 35713, 35376, 35045, 34721, 34402, 34089, 33782, 33481, 33184, 32893, 32607, 
+  32326, 32050, 31778, 31511, 31249, 30990, 30736, 30486, 30240, 29998, 29760, 29526, 29295, 29068, 
+  28845, 28624, 28408, 28194, 27984, 27776, 27572, 27371, 27172, 26977, 26784, 26594, 26407, 26222, 
+  26040, 25861, 25683, 25509, 25336, 25166, 24999, 24833, 24670, 24508, 24349, 24192, 24037, 23884, 
+  23733, 23583, 23436, 23290, 23147, 23005, 22864, 22726, 22589, 22454, 22320, 22188, 22057, 21928, 
+  21801, 21675, 21550, 21427, 21305, 21185, 21066, 20948, 20832, 20717, 20603, 20490, 20379, 20269, 
+  20160, 20052, 19945, 19840, 19735, 19632, 19530, 19429, 19328, 19229, 19131, 19034, 18938, 18843, 
+  18749, 18655, 18563, 18471, 18381, 18291, 18202, 18114, 18027, 17941, 17856, 17771, 17687, 17604, 
+  17522, 17440, 17360, 17280, 17200, 17122, 17044, 16967, 16890, 16815, 16740, 16665, 16591, 16518, 
+  16446, 16374, 16303, 16232, 16162, 16093, 16024, 15956, 15888, 15821, 15755, 15689, 15624
+};
+// 1/32 note times in ticks on timer2 @ 1kHz for bpm range
+const uint8_t _32note_ticks[] = {
+  125, 123, 121, 119, 117, 115, 114, 112, 110, 109, 107, 106, 104, 103, 101, 100, 99, 97, 96, 95, 
+  94, 93, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 82, 81, 80, 79, 78, 77, 77, 76, 75, 74, 74, 73, 
+  72, 71, 71, 70, 69, 69, 68, 68, 67, 66, 66, 65, 65, 64, 64, 63, 63, 62, 61, 61, 60, 60, 60, 59, 
+  59, 58, 58, 57, 57, 56, 56, 56, 55, 55, 54, 54, 54, 53, 53, 52, 52, 52, 51, 51, 51, 50, 50, 50, 
+  49, 49, 49, 48, 48, 48, 47, 47, 47, 47, 46, 46, 46, 45, 45, 45, 45, 44, 44, 44, 44, 43, 43, 43, 
+  43, 42, 42, 42, 42, 41, 41, 41, 41, 41, 40, 40, 40, 40, 39, 39, 39, 39, 39, 38, 38, 38, 38, 38, 
+  38, 37, 37, 37, 37, 37, 36, 36, 36, 36, 36, 36, 35, 35, 35, 35, 35, 35, 34, 34, 34, 34, 34, 34, 
+  33, 33, 33, 33, 33, 33, 33, 32, 32, 32, 32, 32, 32, 32, 32, 31, 31
+};
+
+uint16_t notes[] = {288, 300, 312, 324, 336, 348, 360, 372};
 
 uint8_t mode = 0;
 #define keyboard 0
@@ -227,8 +284,9 @@ uint8_t currentPreset;
 bool blinkStatus;
 uint32_t blinkTime;
 
-
 void setup() {
+  Serial.begin(115200);
+  Serial.println("XIIO v3");
 
   // encoder
   pinMode(switchPin, INPUT);
@@ -254,8 +312,11 @@ void setup() {
   pinMode(10, OUTPUT); // DAC CS pin
   digitalWrite(10, HIGH);
 
+  Serial.println("Pin setup complete");
+
   // clear eeprom at first startup
   if (EEPROM.read(1020) != 0) {
+    Serial.println("Clearing EEPROM");
     for (int i = 0; i < 1021; i ++) {
       EEPROM.update(i, 0);
     }
@@ -274,6 +335,8 @@ void setup() {
   brightness = EEPROM.read(1022);
   ahoj();
 
+  Serial.println("FastLED initialized");
+
   SPI.begin();
 
   // initialize MPR121 library
@@ -281,13 +344,15 @@ void setup() {
   //cap.setThreshholds(0x0F, 0x0A);
   cap.setThreshholds(3, 2);
 
-  xiioBegin();
+  Serial.println("MPR121 initialized");
+
+  totalGlideTicks = _32note_ticks[bpm] * GlideTimeMultiplier[glideTime];
 
   // recall last settings
   preset = EEPROM.read(1023);
-  loadPreset();
+  // loadPreset();
 
-  encoderDirection = EEPROM.read(1021);
+  encoderDirection = !EEPROM.read(1021);
 
   // enter calibration mode, if encoder is pushed while powering up
   if (switchRead == 0) {
@@ -297,40 +362,35 @@ void setup() {
     switchHappened = 1;
   }
 
-  interrup_c = 16000000 / (1024 * bpm) - 1;
+  Serial.println("Interrupt setup...");
 
-  // TIMER 0 for interrupt frequency 190.5487804878049 Hz:
-  cli(); // stop interrupts
-  TCCR0A = 0; // set entire TCCR0A register to 0
-  TCCR0B = 0; // same for TCCR0B
-  TCNT0  = 0; // initialize counter value to 0
-  // set compare match register for 190.5487804878049 Hz increments
-  OCR0A = interrup_c; // = 16000000 / (1024 * bpm) - 1 (must be <256)
-  // turn on CTC mode
-  TCCR0B |= (1 << WGM01);
-  // Set CS02, CS01 and CS00 bits for 1024 prescaler
-  TCCR0B |= (1 << CS02) | (0 << CS01) | (1 << CS00);
-  // enable timer compare interrupt
-  TIMSK0 |= (1 << OCIE0A);
+  // TIMER 1 for interrupt frequency 2 Hz / 120 BPM:
+  cli();                      // stop interrupts
+  TCCR1A = 0;                 // set entire TCCR1A register to 0
+  TCCR1B = 0;                 // same for TCCR1B
+  TCNT1  = 0;                 // initialize counter value to 0
+                              // set compare match register for bpm/60 Hz increments
+  OCR1A = bpmTimeTable[bpm];  // = 16000000 / (256 * freq) - 1 (must be <65536)
+  TCCR1B |= (1 << WGM12);     // turn on CTC mode
+  TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10); // Set CS12, CS11 and CS10 bits for 256 prescaler                              
+  TIMSK1 |= (1 << OCIE1A);    // enable timer compare interrupt
+
+  // TIMER 2 for interrupt frequency 1000 Hz:
+  TCCR2A = 0;                 // set entire TCCR2A register to 0
+  TCCR2B = 0;                 // same for TCCR2B
+  TCNT2  = 0;                 // initialize counter value to 0
+                              // set compare match register for 1000 Hz increments
+  OCR2A = 249;                // 1000 Hz (16000000/((124+1)*128))
+  TCCR2A |= (1 << WGM21);     // turn on CTC mode
+  TCCR2B |= (0 << CS22) | (1 << CS21) | (1 << CS20);  // Set CS22, CS21 and CS20 bits for 64 prescaler
+  TIMSK2 |= (1 << OCIE2A);    // enable timer compare interrupt
   sei(); // allow interrupts
-
+  Serial.println("Interrupt setup complete");
 }
 
 ISR(TIMER1_COMPA_vect) {
-
-  // calculate new gliding note
-  glideNote = glideNote - 1 + (glideDirection * 2);
-
-  // do we stop gliding?
-  if (glideNote == glideStop || glideNote > 996) {
-    glideNote = glideStop;
-    // if yes, switch of interrupts
-    TIMSK1 = 0x0;
-    gliding = 0;
-  }
-
-  // refresh DAC
-  writeDAC(glideNote);
+  newClock = 1;
+  doTriggerFunction(1);
 }
 
 void loop() {
@@ -365,20 +425,11 @@ void loop() {
     doChange = 1;
   }
 
-
   // refresh LEDs if change happened
   if (doChange) {
     doLeds();
   }
 
-}
-
-void xiioBegin() {
-  // timer1 settings, used when gliding
-  TCCR1A = 0x0;
-  TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);    // mode: CTC, prescaler: 64
-  OCR1A = 100;
-  TIMSK1 = 0x0;
 }
 
 void ahoj() {
