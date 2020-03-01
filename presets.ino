@@ -9,7 +9,7 @@ octaveAction               max value: 3  bits: 2
 switchPlateBehavior [0]    max value: 2  bits: 2
 switchPlateBehavior [1]    max value: 2  bits: 2
 
-glideTime                 max value: 7  bits: 6
+glideTime                  max value: 7  bits: 6
 glideLegato                max value: 1  bits: 1
 glideEnabled               max value: 1  bits: 1
 
@@ -18,8 +18,9 @@ enableFreeze               max value: 2  bits: 2
 seqDirection               max value: 3  bits: 2
 
 seqScope                   max value: 16 bits: 4
-int. trigger. quant        max value: 1  bits: 1
-bpm                        max value: 180 bits: 8
+internalClockToggle        max value: 1  bits: 1
+internalClockQuantTime     max value: 1  bits: 1
+internalClockBPM           max value: 180 bits: 8
 
 things, that has to be restored while a preset loads:
 
@@ -77,12 +78,12 @@ void savePreset(){
 
   dataToStore = 0;
 
-  dataToStore |= seqScope - 1;             // 0000 XXXX
-  dataToStore |= (bpmQuantTime & 1) << 4;  // 000X 0000
-
+  dataToStore |= seqScope - 1;                      // 0000 XXXX
+  dataToStore |= (internalClockToggle & 1) << 4;    // 000X 0000
+  dataToStore |= (internalClockQuantTime & 1) << 5; // 00X0 0000
   EEPROM.update(presetPrefix + 12, dataToStore);
 
-  EEPROM.update(presetPrefix + 13, (uint8_t)(bpm & 0xff));
+  EEPROM.update(presetPrefix + 13, (uint8_t)(internalClockBPM & 0xff));
   // bytes (prefix+) 14 are reserved
 
   currentPreset = preset;
@@ -138,13 +139,14 @@ void loadPreset(){
 
   data = EEPROM.read(presetPrefix + 12);
 
-  seqScope = (data & B00001111) + 1;               // 0000 XXXX
-  bpmQuantTime = (data & B00010000) >> 4;          // 000X 0000
-  bpm = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
-  // bytes (prefix+) 12, 13, 14 are reserved
+  seqScope               = (data & B00001111) + 1;  // 0000 XXXX
+  internalClockToggle    = (data & B00010000) >> 4; // 00X0 0000
+  internalClockQuantTime = (data & B00100000) >> 5; // 000X 0000
+  internalClockBPM = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
+  // byte (prefix+) 14 is reserved
 
   if (glideEnabled){
-    totalGlideTicks = _32noteTicks[bpm] * GlideTimeMultiplier[glideTime];
+    totalGlideTicks = _32noteTicks[internalClockBPM] * GlideTimeMultiplier[glideTime];
   }
   else {
     gliding = GLIDE_OFF;

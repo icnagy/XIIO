@@ -111,10 +111,16 @@ uint32_t triggerTime = 0;
 bool readClock = 1;
 bool lastClock = 1;
 bool newClock = 0;
+
 // Internal clock
-bool internalClockIsRunning = true;
+bool internalClockIsRunning = false;
+bool internalClockToggle = false;
 uint32_t lastClockFallingEdge = 0;
-uint8_t bpm = 60;
+uint8_t internalClockBPM = 60;
+enum internalClockStatusEnum {
+  CLOCK_DISABLED, // 0
+  CLOCK_ENABLED   // 1
+};
 
 uint8_t page = 0;
 #define keyboard_page 0
@@ -245,7 +251,7 @@ uint8_t bpmTimeTablePrescalerArray[] = {
   (0 << CS12) | (1 << CS11) | (1 << CS10)  // 64
 };
 uint16_t *bpmTimeTable = bpmTimeTableQuarterNotes;
-uint8_t bpmQuantTime = 0;
+uint8_t internalClockQuantTime = 0;
 
 // 1/32 note times in ticks on timer2 @ 1kHz for bpm range
 const uint8_t _32noteTicks[] = {
@@ -309,18 +315,21 @@ uint8_t currentPreset;
 bool blinkStatus;
 uint32_t blinkTime;
 
-void initializeInterrupts(){
+void initializeInterrupts() {
   // TIMER 1 for interrupt frequency BPM:
   TIMSK1 = 0;
   TCCR1A = 0;                                         // set entire TCCR1A register to 0
   TCCR1B = 0;                                         // same for TCCR1B
   TCNT1  = 0;                                         // initialize counter value to 0
                                                       // set compare match register for bpm/60 Hz increments
-  OCR1A = bpmTimeTableArray[bpmQuantTime][bpm];       // = 16000000 / (256 * freq) - 1 (must be <65536)
+                                                      // = 16000000 / (256 * freq) - 1 (must be <65536)
+  OCR1A = bpmTimeTableArray[internalClockQuantTime][internalClockBPM];
   TCCR1B |= (1 << WGM12);                             // turn on CTC mode
-  TCCR1B |= bpmTimeTablePrescalerArray[bpmQuantTime];  // Set CS12, CS11 and CS10 bits for 256 prescaler
-  TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
-
+  TCCR1B |= bpmTimeTablePrescalerArray[internalClockQuantTime];  // Set CS12, CS11 and CS10 bits for 256 prescaler
+  if(internalClockToggle) {
+    internalClockIsRunning == true;
+    TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
+  }
   // TIMER 2 for interrupt frequency 1000 Hz:
   TCCR2B = 0;                 // set entire TCCR2B register to 0
   TCCR2A |= (1 << WGM21);     // turn on CTC mode
@@ -394,7 +403,7 @@ void setup() {
 
   Serial.println("MPR121 initialized");
 
-  totalGlideTicks = _32noteTicks[bpm] * GlideTimeMultiplier[glideTime];
+  totalGlideTicks = _32noteTicks[internalClockBPM] * GlideTimeMultiplier[glideTime];
 
   // recall last settings
   preset = EEPROM.read(1023);
