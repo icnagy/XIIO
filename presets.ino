@@ -18,6 +18,7 @@ enableFreeze               max value: 2  bits: 2
 seqDirection               max value: 3  bits: 2
 
 seqScope                   max value: 16 bits: 4
+int. trigger. quant        max value: 1  bits: 1
 bpm                        max value: 180 bits: 8
 
 things, that has to be restored while a preset loads:
@@ -28,12 +29,12 @@ uint16_t glideTime = 0;
 */
 
 void savePreset(){
-  
+
   uint16_t presetPrefix = preset * 15;
   uint8_t dataToStore = 0;
 
   // save notes
-  
+
   for (int i = 0; i < 8; i ++){
     uint16_t noteToStore = notes[i] - 288;
     EEPROM.update(presetPrefix + i, noteToStore);
@@ -77,6 +78,7 @@ void savePreset(){
   dataToStore = 0;
 
   dataToStore |= seqScope - 1;             // 0000 XXXX
+  dataToStore |= (bpmQuantTime & 1) << 4;  // 000X 0000
 
   EEPROM.update(presetPrefix + 12, dataToStore);
 
@@ -137,7 +139,7 @@ void loadPreset(){
   data = EEPROM.read(presetPrefix + 12);
 
   seqScope = (data & B00001111) + 1;               // 0000 XXXX
-
+  bpmQuantTime = (data & B00010000) >> 4;          // 000X 0000
   bpm = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
   // bytes (prefix+) 12, 13, 14 are reserved
 

@@ -10,50 +10,31 @@ void edit(int8_t vari) {
         doTriggerFunction(1);
         return;
       }
-      else 
+      else
       {
         // BPM adjust
         bpm = finibus(bpm + vari, 0, 180);      // limit to the bpmTimeTable array
         Serial.println(bpm + 60);
-        TIMSK1 = 0;
-        TCCR1A = 0;                                         // set entire TCCR1A register to 0
-        TCCR1B = 0;                                         // same for TCCR1B
-        TCNT1  = 0;                                         // initialize counter value to 0
-                                                            // set compare match register for bpm/60 Hz increments
-        OCR1A = bpmTimeTable[bpm];                          // = 16000000 / (256 * freq) - 1 (must be <65536)
-        TCCR1B |= (1 << WGM12);                             // turn on CTC mode
-        TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10);  // Set CS12, CS11 and CS10 bits for 256 prescaler
-        TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
-
-        TCCR2B = 0;                 // set entire TCCR2B register to 0
-        TCCR2A |= (1 << WGM21);     // turn on CTC mode
-                                    // set compare match register for 1000 Hz increments
-        OCR2A = 249;                // = 16000000 / (64 * 1000) - 1 (must be <256)
-        TCNT2  = 0;                 // initialize counter value to 0
-        TCCR2A = 0;                 // set entire TCCR2A register to 0
-        TCCR2B |= (1 << CS22) | (0 << CS21) | (0 << CS20); // Set CS22, CS21 and CS20 bits for 64 prescaler
-        TIMSK2 |= (1 << OCIE2A);    // enable timer compare interrupt
-
+        initializeInterrupts();
       }
-
       break;
-
     case settings_page:
-
       settings(vari);
       return;
-
       break;
-
   }
-
 }
 
 void settings(int8_t vari) {
 
+  switch (plates) {
 
-  switch (activePlate) {
-
+    case 3:
+      // set quater note or sixteenth note operation
+      bpmQuantTime = finibus(bpmQuantTime + vari, 0, 1);
+      G = B1100 >> (bpmQuantTime << 1);
+      initializeInterrupts();
+      break;
     case 0:
       WL = B1111;
       break;
@@ -80,7 +61,7 @@ void settings(int8_t vari) {
       W = B1000 >> octaveAction;
       break;
 
-    case 3:
+    case 4:
       // switch 1 behavior
       // 0 -> momentary
       // 1 -> trigger
@@ -92,7 +73,7 @@ void settings(int8_t vari) {
       R = B1100 >> switchPlateBehavior[0];
       break;
 
-    case 4:
+    case 8:
       // switch 2 behavior
       // 0 -> momentary
       // 1 -> trigger
@@ -104,7 +85,7 @@ void settings(int8_t vari) {
       R = B1100 >> switchPlateBehavior[1];
       break;
 
-    case 9:
+    case 256:
       // glide time
       // 0 Off 1-7
       // gliding is disabled, when index = 0
@@ -114,7 +95,7 @@ void settings(int8_t vari) {
       if (newGlideTime == 0) {
         glideEnabled = GLIDE_OFF;
         gliding = GLIDE_OFF;
-      } 
+      }
       else {
         glideTime = newGlideTime - 1;
         glideEnabled = GLIDE_ON;
@@ -125,7 +106,7 @@ void settings(int8_t vari) {
       // return;
       break;
 
-    case 10:
+    case 512:
       // glide mode
       // 0 -> always glide
       // 1 -> only when two (or more) notes overlap each other
@@ -136,7 +117,7 @@ void settings(int8_t vari) {
       B = B1100 >> glideLegato * 2;
       break;
 
-    case 11:
+    case 1024:
       preset = finibus ((preset + vari), 0, 14);
       if (preset == currentPreset) {
         if (blinkStatus == 1) {
@@ -155,7 +136,7 @@ void settings(int8_t vari) {
         }
       }
       break;
-    case 12:
+    case 2048:
       preset = finibus ((preset + vari), 0, 14);
       if (preset == currentPreset) {
         if (blinkStatus == 1) {
@@ -175,7 +156,7 @@ void settings(int8_t vari) {
       }
       break;
 
-    case 5:
+    case 16:
       if ((vari == -1 && (mode > 0) || vari == 1 && (mode < 2)) && freeze) { // switch off freeze, when switching between modes
         freeze = 0;
         switch0low;
@@ -193,12 +174,12 @@ void settings(int8_t vari) {
       Y = B1100 >> mode;
       break;
 
-    case 6:
+    case 32:
       seqDirection = finibus ((seqDirection + vari), 0, 3);
       Y = B1000 >> seqDirection;
       break;
 
-    case 7:
+    case 64:
       enableFreeze = finibus ((enableFreeze + vari), 0, 1);
       if (enableFreeze && mode) {
         switchPlateBehavior [0] = 2;
@@ -210,7 +191,7 @@ void settings(int8_t vari) {
       Y = B1100 >> enableFreeze * 2;
       break;
 
-    case 8:
+    case 128:
       switch (mode) {
 
         case keyboard:
@@ -246,4 +227,3 @@ void settings(int8_t vari) {
   executeLEDs();
 
 }
-
