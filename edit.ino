@@ -41,7 +41,7 @@ void settings(int8_t vari) {
       }
       GL = B1100 >> (internalClockToggle << 1);
       break;
-    case 6: // octave + and freeze plate
+    case 6: // octave + and freeze plates
       if(internalClockToggle == CLOCK_ENABLED) {
         // set quater note or sixteenth note quant for internal clock
         internalClockQuantTime = finibus(internalClockQuantTime + vari, 0, 1);

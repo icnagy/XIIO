@@ -15,7 +15,7 @@ void getClock(){
   // if internal clock should run, but it isn't (probably because of external clock present)
   if (!internalClockIsRunning && internalClockToggle == CLOCK_ENABLED) {
     // if last clock falling edge was over 1 second ago enable INT1
-    if (lastClockFallingEdge - millis() > 1000) {
+    if (millis() - lastClockFallingEdge  > 2000) {
       internalClockIsRunning = true;
       TIMSK1 |= (1 << OCIE1A); // enable INT1
     }
