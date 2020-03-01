@@ -429,7 +429,6 @@ void setup() {
 
 ISR(TIMER1_COMPA_vect) {
   newClock = 1;
-  doTriggerFunction(1);
 }
 
 void loop() {
