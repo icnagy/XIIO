@@ -5,7 +5,7 @@ README.md
 V3 adds the following new features:
 - Internal clock 60-240 bpm triggering on quater or sixteenth notes
 - Rewritten glide function with selectable glide time from 1/32note to full note
-- Expandable settings page via multi-plate touch
+- Expanded settings page via multi-plate touch
 
 ###  Internal clock
 
@@ -17,22 +17,30 @@ Quantization can be quater not or sixteenth note which is also saved with the pr
 ### Rewritten glide
 
 With the new glide implementation it is possible to select the folowing glide times:
-- 1/32 note
-- 1/16 note
-- 1/8 note
-- 1/4 note
-- 1/2 note
-- Full note
+- 1/32 note (XOOO)
+- 1/16 note (OXOO)
+- 1/8 note  (XXOO)
+- 1/4 note  (OOXO)
+- 1/2 note  (XOXO)
+- Full note (OXXO)
 
-### Expandable settings
+### Expanded settings
 
-Pervious implementation only used single touch plate to trigger settings.
-The new implementation allowed multi-plate triggers.
-Example: to access trigger quantization settings
+Example: to access internal clock enable/disable settings:
 
 1. go to settings
-2. press and hold octave - and octave + at the same time
-3. two green LEDs on the left means quater note, two green on right means sixteenth note
+2. press and hold octave - and octave + plates at the same time
+3. use the encoder to toggle between
+   XXOO disabled
+   OOXX enabled
+
+To set internal clock's quantization time:
+
+1. go to settings
+2. press and hold octave + and freeze plates at the same time
+3. use the encoder to toggle between
+   XXOO 1/4 note,
+   OOXX 1/16 note
 
 ## Development
 
