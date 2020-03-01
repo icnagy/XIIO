@@ -142,7 +142,7 @@ void loadPreset(){
   // bytes (prefix+) 12, 13, 14 are reserved
 
   if (glideEnabled){
-    totalGlideTicks = _32note_ticks[bpm] * GlideTimeMultiplier[glideTime];
+    totalGlideTicks = _32noteTicks[bpm] * GlideTimeMultiplier[glideTime];
   }
   else {
     gliding = GLIDE_OFF;

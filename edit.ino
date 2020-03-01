@@ -118,7 +118,7 @@ void settings(int8_t vari) {
       else {
         glideTime = newGlideTime - 1;
         glideEnabled = GLIDE_ON;
-        totalGlideTicks = _32note_ticks[bpm] * GlideTimeMultiplier[glideTime];
+        totalGlideTicks = _32noteTicks[bpm] * GlideTimeMultiplier[glideTime];
         // Serial.println(totalGlideTicks);
       }
       // ledScale(glideTime);
