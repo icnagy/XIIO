@@ -189,11 +189,13 @@ void settings(int8_t vari) {
         queuedOctave = octave;
       }
       mode = finibus ((mode + vari), 0, 3);
-      if (glideLegato && mode) {
-        switchPlateBehavior[1] = momentary_switch;
-      }
-      if (enableFreeze && mode) {
-        switchPlateBehavior[0] = latching_switch;
+      if(mode != euclidian) {
+        if (glideLegato && mode) {
+          switchPlateBehavior[1] = momentary_switch;
+        }
+        if (enableFreeze && mode) {
+          switchPlateBehavior[0] = latching_switch;
+        }
       }
       Y = B1000 >> mode;
       break;
