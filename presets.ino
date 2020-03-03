@@ -6,8 +6,8 @@ after subtracting 288: min 0, max, 420
 
 octaveBehavior             max value: 2  bits: 2
 octaveAction               max value: 3  bits: 2
-switchPlateBehavior [0]    max value: 2  bits: 2
-switchPlateBehavior [1]    max value: 2  bits: 2
+switchPlateBehavior[0]     max value: 2  bits: 2
+switchPlateBehavior[1]     max value: 2  bits: 2
 
 glideTime                  max value: 7  bits: 6
 glideLegato                max value: 1  bits: 1
@@ -50,8 +50,8 @@ void savePreset(){
 
   dataToStore |= octaveBehavior;                // 0000 00XX
   dataToStore |= octaveAction << 2;             // 0000 XX00
-  dataToStore |= switchPlateBehavior [0] << 4;  // 00XX 0000
-  dataToStore |= switchPlateBehavior [1] << 6;  // XX00 0000
+  dataToStore |= switchPlateBehavior[0] << 4;   // 00XX 0000
+  dataToStore |= switchPlateBehavior[1] << 6;   // XX00 0000
 
   EEPROM.update(presetPrefix + 9, dataToStore);
 
@@ -117,8 +117,8 @@ void loadPreset(){
 
   octaveBehavior = data & B00000011;                  // 0000 00XX
   octaveAction  = (data >> 2) & B00000011;            // 0000 XX00
-  switchPlateBehavior [0] = (data >> 4) & B00000011;  // 00XX 0000
-  switchPlateBehavior [1] = (data >> 6) & B00000011;  // XX00 0000
+  switchPlateBehavior[0] = (data >> 4) & B00000011;   // 00XX 0000
+  switchPlateBehavior[1] = (data >> 6) & B00000011;   // XX00 0000
 
   // load glide settings
 

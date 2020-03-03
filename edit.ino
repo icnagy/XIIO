@@ -80,9 +80,9 @@ void settings(int8_t vari) {
       // 0 -> momentary
       // 1 -> trigger
       // 2 -> latching
-      switchPlateBehavior [0] = finibus ((switchPlateBehavior [0] + vari), 0, 2);
+      switchPlateBehavior[0] = finibus ((switchPlateBehavior[0] + vari), 0, 2);
       if (enableFreeze && mode) {
-        switchPlateBehavior [0] = 2;
+        switchPlateBehavior[0] = latching_switch;
       }
       R = B1100 >> switchPlateBehavior[0];
       break;
@@ -92,9 +92,9 @@ void settings(int8_t vari) {
       // 0 -> momentary
       // 1 -> trigger
       // 2 -> latching
-      switchPlateBehavior [1] = finibus ((switchPlateBehavior [1] + vari), 0, 2);
+      switchPlateBehavior[1] = finibus ((switchPlateBehavior[1] + vari), 0, 2);
       if (arpGlide && mode) {
-        switchPlateBehavior [1] = 0;
+        switchPlateBehavior[1] = momentary_switch;
       }
       R = B1100 >> switchPlateBehavior[1];
       break;
@@ -126,7 +126,7 @@ void settings(int8_t vari) {
       // 1 -> only when two (or more) notes overlap each other
       glideLegato = finibus ((glideLegato + vari), 0, 1);
       if (glideLegato && mode) {
-        switchPlateBehavior [1] = 0;
+        switchPlateBehavior[1] = momentary_switch;
       }
       B = B1100 >> glideLegato * 2;
       break;
@@ -178,14 +178,14 @@ void settings(int8_t vari) {
         moveSeq = 0;
         queuedOctave = octave;
       }
-      mode = finibus ((mode + vari), 0, 2);
+      mode = finibus ((mode + vari), 0, 3);
       if (glideLegato && mode) {
-        switchPlateBehavior [1] = 0;
+        switchPlateBehavior[1] = momentary_switch;
       }
       if (enableFreeze && mode) {
-        switchPlateBehavior [0] = 2;
+        switchPlateBehavior[0] = latching_switch;
       }
-      Y = B1100 >> mode;
+      Y = B1000 >> mode;
       break;
 
     case 32: // note plate 2
@@ -196,7 +196,7 @@ void settings(int8_t vari) {
     case 64: // note plate 3
       enableFreeze = finibus ((enableFreeze + vari), 0, 1);
       if (enableFreeze && mode) {
-        switchPlateBehavior [0] = 2;
+        switchPlateBehavior[0] = latching_switch;
       }
       if (!enableFreeze) {
         freeze = 0;
