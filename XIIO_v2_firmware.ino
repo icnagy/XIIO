@@ -269,6 +269,7 @@ uint8_t mode = 0;
 #define keyboard 0
 #define arpeggiator 1
 #define sequencer 2
+#define euclidian 3
 uint8_t seqLength = 0; // determines the length of sequence in arp mode
 int8_t seqIndex = 0;
 uint8_t seqNotes [] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -438,15 +439,18 @@ void loop() {
   switchPlates();
   switch (mode) {
     case keyboard:
-    break;
+      break;
     case arpeggiator:
-    getClock();
-    arpFunction();
-    break;
+      getClock();
+      arpFunction();
+      break;
     case sequencer:
-    getClock();
-    seqFunction();
-    break;
+      getClock();
+      seqFunction();
+    case euclidian:
+      getClock();
+      eucFunction();
+      break;
   }
 
   // turn of trigger output
