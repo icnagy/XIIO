@@ -131,7 +131,6 @@ uint8_t page = 0;
 #define settings_page 1
 #define function_page 3
 
-
 bool doChange = 0;
 bool doNote = 0;
 bool doTrigger = 0;
@@ -156,8 +155,7 @@ int8_t octaveReadLast = 0;
 int16_t octave = 0;
 int16_t queuedOctave = 0;
 
-
-uint8_t switchPlateBehavior [] = {0, 0};
+uint8_t switchPlateBehavior[] = {0, 0};
 #define momentary_switch 0
 #define trigger_switch 1
 #define latching_switch 2
