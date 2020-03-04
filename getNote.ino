@@ -1,6 +1,12 @@
 int getNote() {
 
   switch (mode) {
+    case euclidian:
+      if((notePlates != notePlatesLast) && (inRotate[selectedChannel] != notePlates)){
+        inRotate[selectedChannel] = finibus(notePlates, 0, patternLength);
+        Serial.println(inRotate[selectedChannel]);
+      }
+      break;
 
     /*oooo    oooo oooooooooooo oooooo   oooo oooooooooo.    .oooooo.         .o.       ooooooooo.   oooooooooo.
       `888   .8P'  `888'     `8  `888.   .8'  `888'   `Y8b  d8P'  `Y8b       .888.      `888   `Y88. `888'   `Y8b
@@ -99,12 +105,12 @@ int getNote() {
           seqReset();
           moveSeq = 1;
         }
-        
+
         if (!notePlates){
           moveSeq = 0;
         }
 
-        
+
       }
       break;
   }
@@ -117,7 +123,7 @@ int getNote() {
   if (notePlates && !gateState) {
     doGateFunction(1);
   }
-  
+
   notePlatesLast = notePlates;
 
 }

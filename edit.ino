@@ -178,6 +178,11 @@ void settings(int8_t vari) {
         moveSeq = 0;
         queuedOctave = octave;
       }
+      if (vari == 1 && mode == sequencer) {
+        euCalc(0);
+        euCalc(1);
+        euCalc(2);
+      }
       mode = finibus ((mode + vari), 0, 3);
       if(mode != euclidian) {
         if (glideLegato && mode) {

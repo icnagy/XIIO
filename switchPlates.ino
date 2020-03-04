@@ -4,6 +4,28 @@ void switchPlates() {
     return;
   }
 
+  if(mode == euclidian) {
+    switchPlateRead[0] = bitRead(plates, 2);
+    if (switchPlateRead[0] != 0 && switchPlateLast[0] == 0) {
+      switchPlateStatus[0] = switchPlateRead[0];
+      numberOfPulses[selectedChannel] = finibus(numberOfPulses[selectedChannel] - 1, 0, patternLength);
+      Serial.println(numberOfPulses[selectedChannel]);
+      euCalc(selectedChannel);
+    }
+    switchPlateLast[0] = switchPlateRead[0];
+
+    switchPlateRead[1] = bitRead(plates, 3);
+    if (switchPlateRead[1] != 0 && switchPlateLast[1] == 0) {
+      switchPlateStatus[1] = switchPlateRead[1];
+      numberOfPulses[selectedChannel] = finibus(numberOfPulses[selectedChannel] + 1, 0, patternLength);
+      Serial.println(numberOfPulses[selectedChannel]);
+      euCalc(selectedChannel);
+    }
+    switchPlateLast[1] = switchPlateRead[1];
+
+    return;
+  }
+
   for (int i = 0; i < 2; i++) {
     switchPlateRead [i] = bitRead(plates, 2 + i);
 
