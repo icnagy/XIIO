@@ -319,6 +319,10 @@ uint8_t currentPreset;
 bool blinkStatus;
 uint32_t blinkTime;
 
+#define numberOfEuclidianChannels 3
+#define patternLength 16
+uint8_t currPulse = 0;
+
 void initializeInterrupts() {
   // TIMER 1 for interrupt frequency BPM:
   TIMSK1 = 0;
@@ -432,6 +436,12 @@ void setup() {
 }
 
 ISR(TIMER1_COMPA_vect) {
+  if(mode == euclidian) {
+    currPulse++;
+    if(currPulse == patternLength) {
+      currPulse = 0;
+    }
+  }
   newClock = 1;
   if(internalClockEmmitsTrigger) {
     doTriggerFunction(1);
