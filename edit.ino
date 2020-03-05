@@ -13,7 +13,9 @@ void edit(int8_t vari) {
       else
       {
         // BPM adjust
-        internalClockBPM = finibus(internalClockBPM + vari, 0, 180);      // limit to the bpmTimeTable array
+        internalClockBPMIndex = finibus(internalClockBPMIndex + vari, 0, 180);      // limit to the 60-240 BPM
+        // Since we just changed the internal clock, adjust the glide time in ticks accordingly
+        totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
         if(internalClockToggle) {
           initializeInterrupts();
         }
@@ -113,7 +115,7 @@ void settings(int8_t vari) {
       else {
         glideTime = newGlideTime - 1;
         glideEnabled = GLIDE_ON;
-        totalGlideTicks = _32noteTicks[internalClockBPM] * GlideTimeMultiplier[glideTime];
+        totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
         // Serial.println(totalGlideTicks);
       }
       // ledScale(glideTime);

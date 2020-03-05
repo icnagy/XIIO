@@ -116,7 +116,9 @@ bool newClock = 0;
 bool internalClockIsRunning = false;
 bool internalClockToggle = false;
 uint32_t lastClockFallingEdge = 0;
-uint8_t internalClockBPM = 60;
+uint32_t externalClockDelta = 0;
+uint8_t externalClockBPMIndex = 0;
+uint8_t internalClockBPMIndex = 60;
 enum internalClockStatusEnum {
   CLOCK_DISABLED, // 0
   CLOCK_ENABLED   // 1
@@ -199,12 +201,12 @@ int8_t newGlideTime = 0;
 #define GLIDE_TIME_MULTIPLIER_FOR_THIRTYSECOND_NOTE (1 << GLIDE_TIME_THIRTYSECOND_NOTE)
 
 const uint8_t GlideTimeMultiplier[] = {
-  GLIDE_TIME_MULTIPLIER_FOR_THIRTYSECOND_NOTE,  // 0
-  GLIDE_TIME_MULTIPLIER_FOR_SIXTEENTH_NOTE,     // 1
-  GLIDE_TIME_MULTIPLIER_FOR_EIGHTH_NOTE,        // 2
-  GLIDE_TIME_MULTIPLIER_FOR_QUARTER_NOTE,       // 3
-  GLIDE_TIME_MULTIPLIER_FOR_HALF_NOTE,          // 4
-  GLIDE_TIME_MULTIPLIER_FOR_FULL_NOTE           // 5
+  GLIDE_TIME_MULTIPLIER_FOR_THIRTYSECOND_NOTE,  // * 1
+  GLIDE_TIME_MULTIPLIER_FOR_SIXTEENTH_NOTE,     // * 2
+  GLIDE_TIME_MULTIPLIER_FOR_EIGHTH_NOTE,        // * 4
+  GLIDE_TIME_MULTIPLIER_FOR_QUARTER_NOTE,       // * 8
+  GLIDE_TIME_MULTIPLIER_FOR_HALF_NOTE,          // * 16
+  GLIDE_TIME_MULTIPLIER_FOR_FULL_NOTE           // * 32
 };
 
 uint16_t totalGlideTicks = 1000;
@@ -250,7 +252,6 @@ uint8_t bpmTimeTablePrescalerArray[] = {
   (1 << CS22) | (0 << CS21) | (0 << CS20), // 256
   (0 << CS12) | (1 << CS11) | (1 << CS10)  // 64
 };
-uint16_t *bpmTimeTable = bpmTimeTableQuarterNotes;
 uint8_t internalClockQuantTime = 0;
 
 // 1/32 note times in ticks on timer2 @ 1kHz for bpm range
@@ -323,7 +324,7 @@ void initializeInterrupts() {
   TCNT1  = 0;                                         // initialize counter value to 0
                                                       // set compare match register for bpm/60 Hz increments
                                                       // = 16000000 / (256 * freq) - 1 (must be <65536)
-  OCR1A = bpmTimeTableArray[internalClockQuantTime][internalClockBPM];
+  OCR1A = bpmTimeTableArray[internalClockQuantTime][internalClockBPMIndex];
   TCCR1B |= (1 << WGM12);                             // turn on CTC mode
   TCCR1B |= bpmTimeTablePrescalerArray[internalClockQuantTime];  // Set CS12, CS11 and CS10 bits for 256 prescaler
   if(internalClockToggle) {
@@ -403,7 +404,7 @@ void setup() {
 
   Serial.println("MPR121 initialized");
 
-  totalGlideTicks = _32noteTicks[internalClockBPM] * GlideTimeMultiplier[glideTime];
+  totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
 
   // recall last settings
   preset = EEPROM.read(1023);
@@ -440,6 +441,7 @@ void loop() {
   switchPlates();
   switch (mode) {
     case keyboard:
+    getClock();
     break;
     case arpeggiator:
     getClock();

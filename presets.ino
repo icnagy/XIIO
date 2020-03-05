@@ -20,7 +20,7 @@ seqDirection               max value: 3  bits: 2
 seqScope                   max value: 16 bits: 4
 internalClockToggle        max value: 1  bits: 1
 internalClockQuantTime     max value: 1  bits: 1
-internalClockBPM           max value: 180 bits: 8
+internalClockBPMIndex      max value: 180 bits: 8
 
 things, that has to be restored while a preset loads:
 
@@ -83,7 +83,7 @@ void savePreset(){
   dataToStore |= (internalClockQuantTime & 1) << 5; // 00X0 0000
   EEPROM.update(presetPrefix + 12, dataToStore);
 
-  EEPROM.update(presetPrefix + 13, (uint8_t)(internalClockBPM & 0xff));
+  EEPROM.update(presetPrefix + 13, (uint8_t)(internalClockBPMIndex & 0xff));
   // bytes (prefix+) 14 are reserved
 
   currentPreset = preset;
@@ -142,11 +142,11 @@ void loadPreset(){
   seqScope               = (data & B00001111) + 1;  // 0000 XXXX
   internalClockToggle    = (data & B00010000) >> 4; // 00X0 0000
   internalClockQuantTime = (data & B00100000) >> 5; // 000X 0000
-  internalClockBPM = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
+  internalClockBPMIndex = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
   // byte (prefix+) 14 is reserved
 
   if (glideEnabled){
-    totalGlideTicks = _32noteTicks[internalClockBPM] * GlideTimeMultiplier[glideTime];
+    totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
   }
   else {
     gliding = GLIDE_OFF;
