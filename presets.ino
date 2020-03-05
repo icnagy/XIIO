@@ -78,9 +78,10 @@ void savePreset(){
 
   dataToStore = 0;
 
-  dataToStore |= seqScope - 1;                      // 0000 XXXX
-  dataToStore |= (internalClockToggle & 1) << 4;    // 000X 0000
-  dataToStore |= (internalClockQuantTime & 1) << 5; // 00X0 0000
+  dataToStore |= seqScope - 1;                          // 0000 XXXX
+  dataToStore |= (internalClockToggle & 1) << 4;        // 000X 0000
+  dataToStore |= (internalClockQuantTime & 1) << 5;     // 00X0 0000
+  dataToStore |= (internalClockEmmitsTrigger & 1) << 6; // 0X00 0000
   EEPROM.update(presetPrefix + 12, dataToStore);
 
   EEPROM.update(presetPrefix + 13, (uint8_t)(internalClockBPMIndex & 0xff));
@@ -139,9 +140,10 @@ void loadPreset(){
 
   data = EEPROM.read(presetPrefix + 12);
 
-  seqScope               = (data & B00001111) + 1;  // 0000 XXXX
-  internalClockToggle    = (data & B00010000) >> 4; // 00X0 0000
-  internalClockQuantTime = (data & B00100000) >> 5; // 000X 0000
+  seqScope                   = (data & B00001111) + 1;  // 0000 XXXX
+  internalClockToggle        = (data & B00010000) >> 4; // 000X 0000
+  internalClockQuantTime     = (data & B00100000) >> 5; // 00X0 0000
+  internalClockEmmitsTrigger = (data & B01000000) >> 6; // 0X00 0000
   internalClockBPMIndex = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
   // byte (prefix+) 14 is reserved
 

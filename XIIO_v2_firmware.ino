@@ -115,6 +115,7 @@ bool newClock = 0;
 // Internal clock
 bool internalClockIsRunning = false;
 bool internalClockToggle = false;
+bool internalClockEmmitsTrigger = false;
 uint32_t lastClockFallingEdge = 0;
 uint32_t externalClockDelta = 0;
 uint8_t externalClockBPMIndex = 0;
@@ -433,6 +434,9 @@ void setup() {
 
 ISR(TIMER1_COMPA_vect) {
   newClock = 1;
+  if(internalClockEmmitsTrigger) {
+    doTriggerFunction(1);
+  }
 }
 
 void loop() {

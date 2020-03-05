@@ -51,6 +51,13 @@ void settings(int8_t vari) {
         initializeInterrupts();
       }
       break;
+    case 12: // switch 1 & switch 2
+      if(internalClockToggle == CLOCK_ENABLED) {
+        // toggle trigger out for internal clock
+        internalClockEmmitsTrigger = finibus(internalClockEmmitsTrigger + vari, 0, 1);
+        G = B1100 >> (internalClockEmmitsTrigger << 1);
+      }
+      break;
     case 0:
       WL = B1111;
       break;
