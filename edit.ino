@@ -4,7 +4,7 @@ void edit(int8_t vari) {
 
     case keyboard_page:
 
-      if (notePlates) {
+      if (notePlates && mode == keyboard) {
         notes[activeNote] = finibus((notes[activeNote] + vari * 12), 288, 708);
         writeDAC(notes[activeNote] + octave);
         doTriggerFunction(1);

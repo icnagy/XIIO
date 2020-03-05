@@ -244,14 +244,17 @@ const uint16_t bpmTimeTableSixteenthNotes [] = {
   17504, 17422, 17342, 17262, 17183, 17104, 17027, 16950, 16874, 16798, 16723, 16649, 16575, 16502,
   16430, 16358, 16287, 16217, 16147, 16078, 16009, 15941, 15874, 15807, 15740, 15675, 15609
 };
+
 uint16_t *bpmTimeTableArray[] = {
-  bpmTimeTableQuarterNotes,
-  bpmTimeTableSixteenthNotes
+  bpmTimeTableSixteenthNotes,
+  bpmTimeTableQuarterNotes
 };
+
 uint8_t bpmTimeTablePrescalerArray[] = {
   (1 << CS22) | (0 << CS21) | (0 << CS20), // 256
   (0 << CS12) | (1 << CS11) | (1 << CS10)  // 64
 };
+
 uint8_t internalClockQuantTime = 0;
 
 // 1/32 note times in ticks on timer2 @ 1kHz for bpm range

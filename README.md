@@ -1,6 +1,6 @@
 # Alternate firmware for Doboz Audio XIIO
 
-This is an independent fiwrmware update for Doboz Audio XIIO touchplate controller.
+This is an independent firmware update for Doboz Audio XIIO touchplate keyboard Eurorack module. Use at your own risk.
 
 ## What's new in V3
 
@@ -23,7 +23,6 @@ With the new glide implementation it is possible to select the folowing glide ti
 - 1/4 note  (OOXO)
 - 1/2 note  (XOXO)
 - Full note (OXXO)
-(The new glide only works with the internal clock for now.)
 
 ### Expanded settings
 
@@ -40,8 +39,8 @@ To set internal clock's quantization time:
 1. go to settings
 2. press and hold octave + and freeze plates at the same time
 3. use the encoder to toggle between
-   XXOO 1/4 note,
-   OOXX 1/16 note
+   XXOO 1/16 note,
+   OOXX 1/4 note
 
 ## Development
 
