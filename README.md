@@ -1,18 +1,18 @@
-README.md
+# Alternate firmware for Doboz Audio XIIO
+
+This is an independent fiwrmware update for Doboz Audio XIIO touchplate controller.
 
 ## What's new in V3
 
-V3 adds the following new features:
-- Internal clock 60-240 bpm triggering on quater or sixteenth notes
-- Rewritten glide function with selectable glide time from 1/32note to full note
+- Internal clock 60-240 bpm with selectable quater or sixteenth note quantization
+- Rewritten glide function with glide time from 1/32note to full note
 - Expanded settings page via multi-plate touch
 
 ###  Internal clock
 
 CNTR1/INT1 has been repurposed as an adjustable internal trigger generator to drive the arp / sequencer.
-BPM is adjustable by the encoder while in keyboard/note mode.
-The current BPM setting is saved with the preset.
-Quantization can be quater not or sixteenth note which is also saved with the preset.
+BPM is adjustable by the encoder while in keyboard/note mode. Two different resolution: 1/4 note and 1/16 note (1ppqn or 4 ppqn)
+The current BPM and its quant setting is saved with the preset.
 
 ### Rewritten glide
 
@@ -23,10 +23,11 @@ With the new glide implementation it is possible to select the folowing glide ti
 - 1/4 note  (OOXO)
 - 1/2 note  (XOXO)
 - Full note (OXXO)
+(The new glide only works with the internal clock for now.)
 
 ### Expanded settings
 
-Example: to access internal clock enable/disable settings:
+Example: to toggle the internal clock:
 
 1. go to settings
 2. press and hold octave - and octave + plates at the same time
