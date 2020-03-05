@@ -269,7 +269,6 @@ uint8_t mode = 0;
 #define keyboard 0
 #define arpeggiator 1
 #define sequencer 2
-#define euclidian 3
 uint8_t seqLength = 0; // determines the length of sequence in arp mode
 int8_t seqIndex = 0;
 uint8_t seqNotes [] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -317,6 +316,8 @@ uint32_t blinkTime;
 #define numberOfEuclidianChannels 3
 #define patternLength 16
 uint8_t currPulse = 0;
+bool euclidianSequencerRunning = false;
+bool eucTriggerState[numberOfEuclidianChannels];
 
 void initializeInterrupts() {
   // TIMER 1 for interrupt frequency BPM:
@@ -431,7 +432,7 @@ void setup() {
 }
 
 ISR(TIMER1_COMPA_vect) {
-  if(mode == euclidian) {
+  if(euclidianSequencerRunning) {
     currPulse++;
     if(currPulse == patternLength) {
       currPulse = 0;
@@ -447,26 +448,25 @@ void loop() {
   getMPR121();
   encoder();
   switchPlates();
+  getClock();
   switch (mode) {
     case keyboard:
       break;
     case arpeggiator:
-      getClock();
       arpFunction();
       break;
     case sequencer:
-      getClock();
       seqFunction();
-    case euclidian:
-      getClock();
-      eucFunction();
       break;
   }
-
+  if(euclidianSequencerRunning) {
+    eucFunction();
+  }
+  newClock = 0;
   // turn of trigger output
   if (triggerState && millis() - triggerTime >= 10) { // trigger width = 5mS
+    eucTriggerState[0] = LOW;
     doTriggerFunction(0);
-
   }
   // blinking
   if (page == settings_page && millis() - blinkTime > 100) {
@@ -479,7 +479,6 @@ void loop() {
   if (doChange) {
     doLeds();
   }
-
 }
 
 void ahoj() {

@@ -1,6 +1,6 @@
 void seqFunction() {
   if (newClock && moveSeq || (newClock && freeze && moveSeq)) {
-    newClock = 0;
+    // newClock = 0;
     switch (seqDirection) {
 
       case dir_up:

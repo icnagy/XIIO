@@ -49,6 +49,20 @@ void settings(int8_t vari) {
         initializeInterrupts();
       }
       break;
+    case 768: // note plate 5 & 6
+      // Turn on euclidian sequencer
+      if(vari == 1 && !euclidianSequencerRunning) {
+        euCalc(0);
+        euCalc(1);
+        euCalc(2);
+        currPulse = -1;
+        euclidianSequencerRunning = true;
+      }
+      if(vari == -1 && euclidianSequencerRunning) {
+        euclidianSequencerRunning = false;
+      }
+      WB = B1100 >> (euclidianSequencerRunning << 1);
+      break;
     case 0:
       WL = B1111;
       break;
@@ -178,21 +192,14 @@ void settings(int8_t vari) {
         moveSeq = 0;
         queuedOctave = octave;
       }
-      if (vari == 1 && mode == sequencer) {
-        euCalc(0);
-        euCalc(1);
-        euCalc(2);
+      mode = finibus ((mode + vari), 0, 2);
+      if (glideLegato && mode) {
+        switchPlateBehavior[1] = momentary_switch;
       }
-      mode = finibus ((mode + vari), 0, 3);
-      if(mode != euclidian) {
-        if (glideLegato && mode) {
-          switchPlateBehavior[1] = momentary_switch;
-        }
-        if (enableFreeze && mode) {
-          switchPlateBehavior[0] = latching_switch;
-        }
+      if (enableFreeze && mode) {
+        switchPlateBehavior[0] = latching_switch;
       }
-      Y = B1000 >> mode;
+      Y = B1100 >> mode;
       break;
 
     case 32: // note plate 2

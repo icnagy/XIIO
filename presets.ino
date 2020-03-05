@@ -20,6 +20,8 @@ seqDirection               max value: 3  bits: 2
 seqScope                   max value: 16 bits: 4
 internalClockToggle        max value: 1  bits: 1
 internalClockQuantTime     max value: 1  bits: 1
+euclidianSequencerRunning  max value: 1  bits: 1
+
 internalClockBPM           max value: 180 bits: 8
 
 things, that has to be restored while a preset loads:
@@ -78,9 +80,11 @@ void savePreset(){
 
   dataToStore = 0;
 
-  dataToStore |= seqScope - 1;                      // 0000 XXXX
-  dataToStore |= (internalClockToggle & 1) << 4;    // 000X 0000
-  dataToStore |= (internalClockQuantTime & 1) << 5; // 00X0 0000
+  dataToStore |= seqScope - 1;                         // 0000 XXXX
+  dataToStore |= (internalClockToggle & 1) << 4;       // 000X 0000
+  dataToStore |= (internalClockQuantTime & 1) << 5;    // 00X0 0000
+  dataToStore |= (euclidianSequencerRunning & 1) << 6; // 0X00 0000
+
   EEPROM.update(presetPrefix + 12, dataToStore);
 
   EEPROM.update(presetPrefix + 13, (uint8_t)(internalClockBPM & 0xff));
@@ -139,9 +143,18 @@ void loadPreset(){
 
   data = EEPROM.read(presetPrefix + 12);
 
-  seqScope               = (data & B00001111) + 1;  // 0000 XXXX
-  internalClockToggle    = (data & B00010000) >> 4; // 00X0 0000
-  internalClockQuantTime = (data & B00100000) >> 5; // 000X 0000
+  seqScope                  = (data & B00001111) + 1;  // 0000 XXXX
+  internalClockToggle       = (data & B00010000) >> 4; // 000X 0000
+  internalClockQuantTime    = (data & B00100000) >> 5; // 00X0 0000
+  // euclidianSequencerRunning = (data & B01000000) >> 6; // 0X00 0000
+  if ((data & B01000000) >> 6) {
+    euCalc(0);
+    euCalc(1);
+    euCalc(2);
+    currPulse = 0;
+    euclidianSequencerRunning = true;
+  }
+
   internalClockBPM = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
   // byte (prefix+) 14 is reserved
 
