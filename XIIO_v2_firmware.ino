@@ -322,6 +322,8 @@ uint32_t blinkTime;
 #define numberOfEuclidianChannels 3
 #define patternLength 16
 uint8_t currPulse = 0;
+bool euclidianSequencerRunning = false;
+bool eucTriggerState[numberOfEuclidianChannels];
 
 void initializeInterrupts() {
   // TIMER 1 for interrupt frequency BPM:
@@ -436,7 +438,7 @@ void setup() {
 }
 
 ISR(TIMER1_COMPA_vect) {
-  if(mode == euclidian) {
+  if(euclidianSequencerRunning) {
     currPulse++;
     if(currPulse == patternLength) {
       currPulse = 0;
@@ -468,9 +470,13 @@ void loop() {
     seqFunction();
     break;
   }
-
+  if(euclidianSequencerRunning) {
+    eucFunction();
+  }
+  newClock = 0;
   // turn of trigger output
   if (triggerState && millis() - triggerTime >= 10) { // trigger width = 5mS
+    eucTriggerState[0] = LOW;
     doTriggerFunction(0);
   }
 
@@ -485,7 +491,6 @@ void loop() {
   if (doChange) {
     doLeds();
   }
-
 }
 
 void ahoj() {

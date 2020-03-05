@@ -13,18 +13,19 @@ uint8_t numberOfPulses[numberOfEuclidianChannels] = { 4, 2, 8};
 uint8_t inRotate[numberOfEuclidianChannels] = { 0, 4, 0 };
 
 uint32_t lastTriggerRisingEdgeTime[numberOfEuclidianChannels];
-bool eucTriggerState[numberOfEuclidianChannels];
+uint8_t myPulse = 0;
 
 void eucFunction() {
-  if (newClock) {
-    newClock = 0;
-
+  if (newClock && euclidianSequencerRunning) {
+    // newClock = 0;
+    uint32_t now = millis();
     // Channel 0 is the old trigger out
-    int myPulse = (currPulse + inRotate[0]) % numberOfSteps[0];
+    myPulse = (currPulse + inRotate[0]) % numberOfSteps[0];
     if (euArray[0][myPulse] > 0) {
       eucTriggerState[0] = HIGH;
-      lastTriggerRisingEdgeTime[0] = millis();
+      lastTriggerRisingEdgeTime[0] = now;
       doTriggerFunction(1);
+      // G = 4;
       Serial.print("1");
     }
     else
@@ -33,8 +34,9 @@ void eucFunction() {
     myPulse = (currPulse + inRotate[1]) % numberOfSteps[1];
     if (euArray[1][myPulse] > 0) {
       eucTriggerState[1] = HIGH;
-      lastTriggerRisingEdgeTime[1] = millis();
+      lastTriggerRisingEdgeTime[1] = now;
       switch0high;
+      // G |= 2;
       Serial.print("1");
     }
     else
@@ -43,8 +45,9 @@ void eucFunction() {
     myPulse = (currPulse + inRotate[2]) % numberOfSteps[2];
     if (euArray[2][myPulse] > 0) {
       eucTriggerState[2] = HIGH;
-      lastTriggerRisingEdgeTime[2] = millis();
+      lastTriggerRisingEdgeTime[2] = now;
       switch1high;
+      // G = 1;
       Serial.println("1");
     }
     else
@@ -54,11 +57,14 @@ void eucFunction() {
   if (eucTriggerState[1] && millis() - lastTriggerRisingEdgeTime[1] >= 10) { // trigger width = 5mS
     eucTriggerState[1] = LOW;
     switch0low;
+    // G = G & B0101;
   }
   if (eucTriggerState[2] && millis() - lastTriggerRisingEdgeTime[2] >= 10) { // trigger width = 5mS
     eucTriggerState[2] = LOW;
     switch1low;
+    // G = G & B0110;
   }
+  doChange = 1;
 }
 
 void euCalc(int channel) {

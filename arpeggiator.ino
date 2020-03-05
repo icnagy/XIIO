@@ -1,7 +1,7 @@
 void arpFunction(){
 
   if (newClock && seqLength > 0 || (newClock && seqLength > 0 && freeze)){
-    newClock = 0;
+    // newClock = 0;
     switch (seqDirection){
 
       // up
@@ -53,7 +53,7 @@ void arpFunction(){
       case 3:
       seqIndex = random (1, seqLength+1);
       break;
-      
+
     }
 
     // refrsh CV output
@@ -68,10 +68,10 @@ void arpFunction(){
     else{
       arpRandom();
     }
-    
+
     // do trigger
     doTriggerFunction(1);
-    
+
   }
 }
 

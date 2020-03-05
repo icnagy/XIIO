@@ -1,16 +1,16 @@
 void octavePlates(){
-  if (mode == euclidian)
-  {
-    octaveRead = 0;
-    if (bitRead(plates,0) == 1){octaveRead = -1;}
-    if (bitRead(plates,1) == 1){octaveRead = 1;}
-    if (octaveReadLast == 0 && octaveRead != 0){
-      selectedChannel = finibus(selectedChannel + octaveRead, 0, numberOfEuclidianChannels);
-      Serial.println(selectedChannel);
-    }
-    octaveReadLast = octaveRead;
-    return;
-  }
+  // if (mode == euclidian)
+  // {
+  //   octaveRead = 0;
+  //   if (bitRead(plates,0) == 1){octaveRead = -1;}
+  //   if (bitRead(plates,1) == 1){octaveRead = 1;}
+  //   if (octaveReadLast == 0 && octaveRead != 0){
+  //     selectedChannel = finibus(selectedChannel + octaveRead, 0, numberOfEuclidianChannels);
+  //     Serial.println(selectedChannel);
+  //   }
+  //   octaveReadLast = octaveRead;
+  //   return;
+  // }
   // read octave plates
   octaveRead = 0;
   if (bitRead(plates,0) == 1){octaveRead = -1;}
