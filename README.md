@@ -10,11 +10,19 @@ This is an independent firmware update for Doboz Audio XIIO touchplate keyboard 
 
 ###  Internal clock
 
-CNTR1/INT1 has been repurposed as an adjustable internal trigger generator to drive the arp / sequencer.
+CNTR1/INT1 has been repurposed as an adjustable internal clock generator to drive the arp / sequencer.
 BPM is adjustable by the encoder while in keyboard/note mode and no note plate is pressed or in arp/sequencer mode.
-Selectable clock resolution: 1/16 note (default, 4 ppqn) and 1/4 note (1ppqn).
-The current BPM and clock resolution is saved with the preset.
+Selectable clock resolution: 1/16 note (default, 4 ppqn) and 1/4 note (1ppqn). The current speed and clock resolution is saved with the preset.
 Note: adjusting internal clock speed while arp/sequencer is playing will cause dropout.
+
+### Using an external clock
+
+When the internal clock is disabled, the external clock works as before, with the addition of the XIIO calculating the external clock's speed/BPM.
+
+When the internal clock is engaged and an external clock is connected, the internal clock will be disabled, so the external clock takes priority.
+
+When there are no more falling clock signals on the external clock input for over 2 seconds, the internal clock is enabled again.
+Note: the speeed of the internal clock will match the external clock's speed.
 
 ### Rewritten glide
 
