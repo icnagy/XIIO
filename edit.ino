@@ -14,9 +14,10 @@ void edit(int8_t vari) {
       {
         // BPM adjust
         internalClockBPMIndex = finibus(internalClockBPMIndex + vari, 0, 180);      // limit to the 60-240 BPM
-        // Since we just changed the internal clock, adjust the glide time in ticks accordingly
+        // Since we just changed the internal clock speed, adjust the glide time in ticks accordingly
         totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
-        if(internalClockToggle) {
+
+        if(internalClockIsRunning && internalClockToggle == CLOCK_ENABLED) {
           initializeInterrupts();
         }
       }

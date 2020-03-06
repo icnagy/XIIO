@@ -21,6 +21,7 @@ void getClock(){
     else {
       externalClockBPMIndex = finibus(externalClockBPMIndex + 1, 0, 180);
     }
+    internalClockBPMIndex = externalClockBPMIndex;
     // Since external BPM can vary, adjust the glide time in ticks accordingly
     totalGlideTicks = _32noteTicks[externalClockBPMIndex] * GlideTimeMultiplier[glideTime];
   }
@@ -30,8 +31,6 @@ void getClock(){
 
     // if last clock falling edge was over 1 second ago enable INT1
     if (millis() - lastClockFallingEdge  > 2000) {
-      internalClockBPMIndex = externalClockBPMIndex;
-
       // internal clock was already set up, no need to re-initialize
       OCR1A = bpmTimeTableArray[internalClockQuantTime][internalClockBPMIndex];
       internalClockIsRunning = true;

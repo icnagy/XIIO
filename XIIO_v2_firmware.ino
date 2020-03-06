@@ -59,6 +59,7 @@ uint8_t WB = B0000;
 #include "Adafruit_MPR121.h"
 Adafruit_MPR121 cap = Adafruit_MPR121();
 
+#define finibus(x, min, max) (x > max) ? max : (x < min ? min : x)
 // encoder
 bool encoderDirection = 0;
 #define encAPin 2 // PD2
@@ -252,8 +253,8 @@ uint16_t *bpmTimeTableArray[] = {
 };
 
 uint8_t bpmTimeTablePrescalerArray[] = {
-  (1 << CS22) | (0 << CS21) | (0 << CS20), // 256
-  (0 << CS12) | (1 << CS11) | (1 << CS10)  // 64
+  (0 << CS12) | (1 << CS11) | (1 << CS10), // 64
+  (1 << CS22) | (0 << CS21) | (0 << CS20)  // 256
 };
 
 uint8_t internalClockQuantTime = 0;
@@ -330,7 +331,7 @@ void initializeInterrupts() {
                                                       // = 16000000 / (256 * freq) - 1 (must be <65536)
   OCR1A = bpmTimeTableArray[internalClockQuantTime][internalClockBPMIndex];
   TCCR1B |= (1 << WGM12);                             // turn on CTC mode
-  TCCR1B |= bpmTimeTablePrescalerArray[internalClockQuantTime];  // Set CS12, CS11 and CS10 bits for 256 prescaler
+  TCCR1B |= bpmTimeTablePrescalerArray[internalClockQuantTime];  // Set CS12, CS11 and CS10 bits for prescaler
   if(internalClockToggle) {
     internalClockIsRunning == true;
     TIMSK1 |= (1 << OCIE1A);                            // enable timer compare interrupt
@@ -463,8 +464,8 @@ void loop() {
   // turn of trigger output
   if (triggerState && millis() - triggerTime >= 10) { // trigger width = 5mS
     doTriggerFunction(0);
-
   }
+
   // blinking
   if (page == settings_page && millis() - blinkTime > 100) {
     blinkStatus = !blinkStatus;
