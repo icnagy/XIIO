@@ -29,7 +29,11 @@ void getClock(){
   if (!internalClockIsRunning && internalClockToggle == CLOCK_ENABLED) {
 
     // if last clock falling edge was over 1 second ago enable INT1
-    if (externalClockDelta  > 2000) {
+    if (millis() - lastClockFallingEdge  > 2000) {
+      internalClockBPMIndex = externalClockBPMIndex;
+
+      // internal clock was already set up, no need to re-initialize
+      OCR1A = bpmTimeTableArray[internalClockQuantTime][internalClockBPMIndex];
       internalClockIsRunning = true;
       TIMSK1 |= (1 << OCIE1A); // enable INT1
     }
