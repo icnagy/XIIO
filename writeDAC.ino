@@ -8,7 +8,7 @@ void writeDAC (uint16_t data){
     data_available = 4;
   }
 }
-uint32_t lastInt2 = 0;
+
 ISR(TIMER2_COMPA_vect){                           //interrupt commands for TIMER 2 here
 
   if(gliding == GLIDE_ON) {
@@ -22,10 +22,6 @@ ISR(TIMER2_COMPA_vect){                           //interrupt commands for TIMER
       glide_accumlator = glide_accumlator - glide_step_per_tick;
     }
     glideNote = glide_accumlator >> 10;
-    // Serial.print("Glide step per tick "); Serial.println(glide_step_per_tick);
-    // Serial.print("Glide accumlator    "); Serial.println(glide_accumlator);
-    // Serial.print("Glide stop          "); Serial.println(glideStop);
-    // Serial.print("Glide note          "); Serial.println(glideNote);
 
     // should we stop gliding?
     if ((glideNote == glideStop) ||                       // are we there yet?
@@ -37,7 +33,6 @@ ISR(TIMER2_COMPA_vect){                           //interrupt commands for TIMER
       // if yes, switch of glide
       gliding = GLIDE_OFF;
     }
-    lastInt2 = millis();
     writeDAC(glideNote);
   }
 
