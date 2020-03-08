@@ -1,6 +1,8 @@
 # Alternate firmware for Doboz Audio XIIO
 
-This is an independent firmware update for Doboz Audio XIIO touchplate keyboard Eurorack module. Use at your own risk.
+This is an independent firmware update for [Doboz Audio XIIO](http://doboz.audio/xiio/) touchplate keyboard Eurorack module. Use at your own risk.
+
+![](https://github.com/icnagy/XIIO/workflows/Build%20XIOO%20firmware/badge.svg)
 
 ## What's new in V3
 
