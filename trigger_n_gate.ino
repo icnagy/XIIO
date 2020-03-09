@@ -8,6 +8,7 @@ void doTriggerFunction(bool todo){
   if(todo){
     triggerHigh;
     triggerState = 1;
+
     triggerTime = millis();
   }
 

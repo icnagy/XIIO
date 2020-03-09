@@ -54,19 +54,5 @@ void arpRandom() {
 
   randomOctValue = finibus (randomOctValue, -288, 288);
 
-  /*
-
-  if (randomOctValue < -288) {
-    randomOctValue = -288;
-  }
-  if (randomOctValue > 288) {
-    randomOctValue = 288;
-  }
-
-  */
-
   doNoteFunction(notes[seqNotes[seqIndex - 1]] + randomOctValue);
-
-
 }
-

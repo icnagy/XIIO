@@ -99,12 +99,12 @@ int getNote() {
           seqReset();
           moveSeq = 1;
         }
-        
+
         if (!notePlates){
           moveSeq = 0;
         }
 
-        
+
       }
       break;
   }
@@ -117,7 +117,7 @@ int getNote() {
   if (notePlates && !gateState) {
     doGateFunction(1);
   }
-  
+
   notePlatesLast = notePlates;
 
 }

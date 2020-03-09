@@ -1,11 +1,23 @@
 void octavePlates(){
+  // if (mode == euclidian)
+  // {
+  //   octaveRead = 0;
+  //   if (bitRead(plates,0) == 1){octaveRead = -1;}
+  //   if (bitRead(plates,1) == 1){octaveRead = 1;}
+  //   if (octaveReadLast == 0 && octaveRead != 0){
+  //     selectedChannel = finibus(selectedChannel + octaveRead, 0, numberOfEuclidianChannels);
+  //     Serial.println(selectedChannel);
+  //   }
+  //   octaveReadLast = octaveRead;
+  //   return;
+  // }
   // read octave plates
   octaveRead = 0;
   if (bitRead(plates,0) == 1){octaveRead = -1;}
   if (bitRead(plates,1) == 1){octaveRead = 1;}
 
   switch (octaveBehavior){
-    
+
     // latching
     case 0:
     if (octaveReadLast == 0 && octaveRead != 0){
@@ -13,7 +25,7 @@ void octavePlates(){
       doChange = 1;
     }
     break;
-    
+
     // momentary +/- 1 oct
     case 1:
     if (octaveRead != octaveReadLast){
@@ -21,7 +33,7 @@ void octavePlates(){
       doChange = 1;
     }
     break;
-    
+
     // momentary +/- 2 oct
     case 2:
     if (octaveRead != octaveReadLast){
