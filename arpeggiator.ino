@@ -1,7 +1,7 @@
 void arpFunction(){
 
   if (newClock && seqLength > 0 || (newClock && seqLength > 0 && freeze)){
-    
+    newClock = 0;
     switch (seqDirection){
 
       // up

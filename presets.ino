@@ -9,12 +9,18 @@ octaveAction               max value: 3  bits: 2
 switchPlateBehavior [0]    max value: 2  bits: 2
 switchPlateBehavior [1]    max value: 2  bits: 2
 
+glideTime                  max value: 7  bits: 6
 glideLegato                max value: 1  bits: 1
-glideIndex                 max value: 48 bits: 6
+glideEnabled               max value: 1  bits: 1
 
 arp                        max value: 1  bits: 1
 enableFreeze               max value: 2  bits: 2
 seqDirection               max value: 3  bits: 2
+
+seqScope                   max value: 16 bits: 4
+internalClockToggle        max value: 1  bits: 1
+internalClockQuantTime     max value: 1  bits: 1
+internalClockBPMIndex      max value: 180 bits: 8
 
 things, that has to be restored while a preset loads:
 
@@ -24,12 +30,12 @@ uint16_t glideTime = 0;
 */
 
 void savePreset(){
-  
+
   uint16_t presetPrefix = preset * 15;
   uint8_t dataToStore = 0;
 
   // save notes
-  
+
   for (int i = 0; i < 8; i ++){
     uint16_t noteToStore = notes[i] - 288;
     EEPROM.update(presetPrefix + i, noteToStore);
@@ -53,9 +59,9 @@ void savePreset(){
 
   dataToStore = 0;
 
-  dataToStore |= glideIndex;         // 00XX XXXX
+  dataToStore |= glideTime;         // 00XX XXXX
   dataToStore |= glideLegato << 6;   // 0X00 0000
-  // the 8th bit is not used         // X000 0000
+  dataToStore |= glideEnabled << 7;  // X000 0000
 
   EEPROM.update(presetPrefix + 10, dataToStore);
 
@@ -72,11 +78,14 @@ void savePreset(){
 
   dataToStore = 0;
 
-  dataToStore |= seqScope - 1;             // 0000 XXXX
-
+  dataToStore |= seqScope - 1;                          // 0000 XXXX
+  dataToStore |= (internalClockToggle & 1) << 4;        // 000X 0000
+  dataToStore |= (internalClockQuantTime & 1) << 5;     // 00X0 0000
+  dataToStore |= (internalClockEmmitsTrigger & 1) << 6; // 0X00 0000
   EEPROM.update(presetPrefix + 12, dataToStore);
 
-  // bytes (prefix+) 13, 14 are reserved
+  EEPROM.update(presetPrefix + 13, (uint8_t)(internalClockBPMIndex & 0xff));
+  // bytes (prefix+) 14 are reserved
 
   currentPreset = preset;
   EEPROM.update(1023, currentPreset);
@@ -116,16 +125,9 @@ void loadPreset(){
 
   data = EEPROM.read(presetPrefix + 10);
 
-  glideIndex = data & B00111111;           // 00XX XXXX
+  glideTime = data & B00111111;           // 00XX XXXX
   glideLegato = (data >> 6) & B00000001;   // 0X00 0000
-  // the 8th bit is not used               // X000 0000
-  if (glideIndex > 0){
-    OCR1A = glideTimeTable [glideIndex-1];
-  }
-  else {
-    TIMSK1 = 0x0;
-    gliding = 0;
-  }
+  glideEnabled = (data >> 7) & B00000001;  // X000 0000
 
   // load arp settings
 
@@ -138,15 +140,24 @@ void loadPreset(){
 
   data = EEPROM.read(presetPrefix + 12);
 
-  seqScope = (data & B00001111) + 1;               // 0000 XXXX
+  seqScope                   = (data & B00001111) + 1;  // 0000 XXXX
+  internalClockToggle        = (data & B00010000) >> 4; // 000X 0000
+  internalClockQuantTime     = (data & B00100000) >> 5; // 00X0 0000
+  internalClockEmmitsTrigger = (data & B01000000) >> 6; // 0X00 0000
+  internalClockBPMIndex = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
+  // byte (prefix+) 14 is reserved
 
-  // bytes (prefix+) 12, 13, 14 are reserved
+  if (glideEnabled){
+    totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
+  }
+  else {
+    gliding = GLIDE_OFF;
+  }
 
   octave = 0;
 
   currentPreset = preset;
   EEPROM.update(1023, currentPreset);
-  
 }
 
 void loadAnim() {
