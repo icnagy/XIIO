@@ -6,7 +6,7 @@ This is an independent firmware update for [Doboz Audio XIIO](http://doboz.audio
 
 ## What's new in V3
 
-- Internal clock 60-240 bpm with selectable quater or sixteenth note quantization
+- Internal clock 60-240 bpm with selectable quarter or sixteenth note quantization
 - Rewritten glide function with glide time from 1/32note to full note
 - New settings available via multi-plate touch
 
