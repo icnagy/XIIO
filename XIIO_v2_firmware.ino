@@ -424,7 +424,7 @@ void setup() {
   preset = EEPROM.read(1023);
   loadPreset();
 
-  encoderDirection = !EEPROM.read(1021);
+  encoderDirection = EEPROM.read(1021);
 
   // enter calibration mode, if encoder is pushed while powering up
   if (switchRead == 0) {
