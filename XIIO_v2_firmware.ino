@@ -420,8 +420,6 @@ void setup() {
 
   Serial.println("MPR121 initialized");
 
-  totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
-  gateOpenTime = gateLengthsNumerator[selectedGateLengthIndex] / (internalClockBPMIndex + 60);
   // recall last settings
   preset = EEPROM.read(1023);
   loadPreset();
