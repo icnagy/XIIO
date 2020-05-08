@@ -24,6 +24,7 @@ void getClock(){
     internalClockBPMIndex = externalClockBPMIndex;
     // Since external BPM can vary, adjust the glide time in ticks accordingly
     totalGlideTicks = _32noteTicks[externalClockBPMIndex] * GlideTimeMultiplier[glideTime];
+    gateOpenTime = gateLengthsNumerator[selectedGateLengthIndex] / (internalClockBPMIndex + 60);
   }
 
   // if internal clock should run, but it isn't (probably because of external clock present)

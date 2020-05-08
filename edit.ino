@@ -16,6 +16,7 @@ void edit(int8_t vari) {
         internalClockBPMIndex = finibus(internalClockBPMIndex + vari, 0, 180);      // limit to the 60-240 BPM
         // Since we just changed the internal clock speed, adjust the glide time in ticks accordingly
         totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
+        gateOpenTime = gateLengthsNumerator[selectedGateLengthIndex] / (internalClockBPMIndex + 60);
 
         if(internalClockIsRunning && internalClockToggle == CLOCK_ENABLED) {
           initializeInterrupts();
@@ -201,6 +202,15 @@ void settings(int8_t vari) {
     case 32: // note plate 2
       seqDirection = finibus ((seqDirection + vari), 0, 3);
       Y = B1000 >> seqDirection;
+      break;
+
+    case 48: // note plate 1 and note plate 2
+      selectedGateLengthIndex = finibus(selectedGateLengthIndex+vari, 0, 3);
+      gateOpenTime = gateLengthsNumerator[selectedGateLengthIndex] / (internalClockBPMIndex + 60);
+      if(selectedGateLengthIndex == 4)
+        W = B1111;
+      else
+        W = B1111 << (3 - selectedGateLengthIndex);
       break;
 
     case 64: // note plate 3

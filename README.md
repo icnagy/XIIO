@@ -62,9 +62,35 @@ To toggle internal clock's trigger out:
    XXOO disable,
    OOXX enable
 
+To select glide time:
+
+1. go to settings
+2. press and hold glide time
+3. use the encoder to select from
+   OOOO glide off
+   XOOO 1/32 note
+   OXOO 1/16 note
+   XXOO 1/8 note
+   OOXO 1/4 note
+   XOXO 1/2 note
+   OXXO Full note
+
+To select gate length:
+
+1. go to settings
+2. press and hold note plate 1 and note plate 2 at the same time
+3. use the encoder to select from
+   XOOO 25%
+   XXOO 50%
+   XXXO 75%
+   XXXX 90%
+
 ## Development
 
 ```
 arduino-cli compile --fqbn arduino:avr:nano && \
-  avrdude -B 1 -V -p m328p -c usbasp -P usb -U flash:w:XIIO_v2_firmware.arduino.avr.nano.hex:i -U flash:w:XIIO_v2_firmware.arduino.avr.nano.with_bootloader.hex:i -U lfuse:w:0xff:m -U hfuse:w:0xda:m -U efuse:w:0xfd:m
+  avrdude -B 1 -V -p m328p -c usbasp -P usb \
+          -U flash:w:XIIO_v2_firmware.arduino.avr.nano.hex:i \
+          -U flash:w:XIIO_v2_firmware.arduino.avr.nano.with_bootloader.hex:i \
+          -U lfuse:w:0xff:m -U hfuse:w:0xda:m -U efuse:w:0xfd:m
 ```

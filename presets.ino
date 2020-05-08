@@ -145,6 +145,7 @@ void loadPreset(){
   internalClockQuantTime     = (data & B00100000) >> 5; // 00X0 0000
   internalClockEmmitsTrigger = (data & B01000000) >> 6; // 0X00 0000
   internalClockBPMIndex = (uint8_t)EEPROM.read(presetPrefix + 13) & 0xff;
+  gateOpenTime = gateLengthsNumerator[selectedGateLengthIndex] / (internalClockBPMIndex + 60);
   // byte (prefix+) 14 is reserved
 
   if (glideEnabled){

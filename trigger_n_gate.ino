@@ -1,10 +1,10 @@
 void doTriggerFunction(bool todo){
-  
+
   if (!todo){
     triggerLow;
     triggerState = 0;
   }
-  
+
   if(todo){
     triggerHigh;
     triggerState = 1;
@@ -13,13 +13,13 @@ void doTriggerFunction(bool todo){
   }
 
   doChange = 1;
-  
+
 }
 
 void doGateFunction(bool todo){
-  
+
   switch (todo){
-    
+
     case 0:
     gateLow;
     gateState = 0;
@@ -28,8 +28,9 @@ void doGateFunction(bool todo){
     case 1:
     gateHigh;
     gateState = 1;
+    gateHighTime = millis();
     break;
   }
-  
+
 }
 

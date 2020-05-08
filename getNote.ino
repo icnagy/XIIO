@@ -33,6 +33,15 @@ int getNote() {
         doNoteFunction(notes[activeNote] + octave);
         doTriggerFunction(1);
       }
+
+      if(!notePlates && gateState && (millis() - gateHighTime >= gateOpenTime)) {
+        doGateFunction(0);
+      }
+
+      if (notePlates && !gateState) {
+        doGateFunction(1);
+      }
+
       break;
 
     /*      .o.       ooooooooo.   ooooooooo.   oooooooooooo   .oooooo.      .oooooo.    ooooo       .o.       ooooooooooooo   .oooooo.   ooooooooo.
@@ -71,6 +80,11 @@ int getNote() {
           queuedOctave = octave;
         }
       }
+
+      if(gateState && (millis() - gateHighTime >= gateOpenTime)) {
+        doGateFunction(0);
+      }
+
       break;
 
     /*  .oooooo..o oooooooooooo   .oooooo.      ooooo     ooo oooooooooooo ooooo      ooo   .oooooo.   oooooooooooo ooooooooo.
@@ -99,25 +113,19 @@ int getNote() {
           seqReset();
           moveSeq = 1;
         }
-        
+
         if (!notePlates){
           moveSeq = 0;
         }
 
-        
+
+      }
+      if(gateState && (millis() - gateHighTime >= gateOpenTime)) {
+        doGateFunction(0);
       }
       break;
   }
 
-  // turn off gate when no plate is pressed
-  if (!notePlates && gateState) {
-    doGateFunction(0);
-  }
-
-  if (notePlates && !gateState) {
-    doGateFunction(1);
-  }
-  
   notePlatesLast = notePlates;
 
 }
