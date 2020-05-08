@@ -43,47 +43,47 @@ To toggle the internal clock:
 1. go to settings
 2. press and hold octave - and octave + plates at the same time
 3. use the encoder to toggle between
-   XXOO disabled
-   OOXX enabled
+   * XXOO disabled
+   * OOXX enabled
 
 To set internal clock's quantization time:
 
 1. go to settings
 2. press and hold octave + and freeze plates at the same time
 3. use the encoder to toggle between
-   XXOO 1/16 note,
-   OOXX 1/4 note
+   * XXOO 1/16 note,
+   * OOXX 1/4 note
 
 To toggle internal clock's trigger out:
 
 1. go to settings
 2. press and hold switch 1 and switch 2 plates at the same time
 3. use the encoder to toggle between
-   XXOO disable,
-   OOXX enable
+   * XXOO disable,
+   * OOXX enable
 
 To select glide time:
 
 1. go to settings
 2. press and hold glide time
 3. use the encoder to select from
-   OOOO glide off
-   XOOO 1/32 note
-   OXOO 1/16 note
-   XXOO 1/8 note
-   OOXO 1/4 note
-   XOXO 1/2 note
-   OXXO Full note
+   * OOOO glide off
+   * XOOO 1/32 note
+   * OXOO 1/16 note
+   * XXOO 1/8 note
+   * OOXO 1/4 note
+   * XOXO 1/2 note
+   * OXXO Full note
 
 To select gate length:
 
 1. go to settings
 2. press and hold note plate 1 and note plate 2 at the same time
 3. use the encoder to select from
-   XOOO 25%
-   XXOO 50%
-   XXXO 75%
-   XXXX 90%
+   * XOOO 25%
+   * XXOO 50%
+   * XXXO 75%
+   * XXXX 90%
 
 ## Development
 
