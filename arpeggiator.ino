@@ -53,7 +53,7 @@ void arpFunction(){
       case 3:
       seqIndex = random (1, seqLength+1);
       break;
-      
+
     }
 
     // refrsh CV output
@@ -68,10 +68,11 @@ void arpFunction(){
     else{
       arpRandom();
     }
-    
+
     // do trigger
     doTriggerFunction(1);
-    
+    if(!gateState)
+      doGateFunction(1);
   }
 }
 

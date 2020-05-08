@@ -89,6 +89,17 @@ uint8_t switchActionLast = 0;
 bool gateState = 0;
 bool gateStateLast = 0;
 
+uint32_t gateHighTime = 0;
+uint32_t gateOpenTime = 0;
+uint8_t selectedGateLengthIndex = 1;
+uint16_t gateLengthsNumerator[] = {
+  3750, // 25%
+  7500, // 50% / 1/32th note
+ 11250, // 75%
+ 13500, // 90%
+ 15000  // 100% / 1/16th note
+};
+
 // trigger
 #define triggerPin 5 // PD5
 #define triggerHigh PORTD &= ~_BV(PD5)
@@ -409,13 +420,11 @@ void setup() {
 
   Serial.println("MPR121 initialized");
 
-  totalGlideTicks = _32noteTicks[internalClockBPMIndex] * GlideTimeMultiplier[glideTime];
-
   // recall last settings
   preset = EEPROM.read(1023);
   loadPreset();
 
-  encoderDirection = !EEPROM.read(1021);
+  encoderDirection = EEPROM.read(1021);
 
   // enter calibration mode, if encoder is pushed while powering up
   if (switchRead == 0) {
@@ -462,7 +471,7 @@ void loop() {
   }
 
   // turn of trigger output
-  if (triggerState && millis() - triggerTime >= 10) { // trigger width = 5mS
+  if (triggerState && (millis() - triggerTime >= 10)) { // trigger width = 5mS
     doTriggerFunction(0);
   }
 

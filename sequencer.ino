@@ -58,9 +58,9 @@ void seqFunction() {
       doNoteFunction(notes[seqNotes[seqIndex]] + octave + seqOctaves[seqIndex]);
     }
 
-
     doTriggerFunction(1);
-
+    if(!gateState)
+      doGateFunction(1);
   }
 }
 
